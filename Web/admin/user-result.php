@@ -1,0 +1,1 @@
+Monthly user result for admin
