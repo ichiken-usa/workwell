@@ -1,6 +1,25 @@
 <?php
+
+////
+// DB設定をパラメータファイルから読み出し
+////
+require_once (__DIR__ . '/../Config/config.php');
+Config::setConfigDirectory(__DIR__ . '/../Config');
+$DB_NAME = Config::get('DB_NAME');
+$DB_HOST = Config::get('DB_HOST');
+$DB_USER = Config::get('DB_USER');
+$DB_PASSWORD = Config::get('DB_PASSWORD');
+
+// セッション確認
+session_start();
+if(isset($_SESSION['USER'])){
+    // ログイン済みならHOMEへ遷移
+    header('Location:/');
+    exit;
+}
+
+// POST処理時
 if($_SERVER['REQUEST_METHOD']=='POST'){
-    // POST処理時
 
     ////
     // 1.入力値取得
@@ -19,29 +38,58 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     $err = array();
 
     if(!$user_num){
-        $err['user_num']='Please input User ID.';
+        $err['user_num']='Please input User ID';
     }
 
     if(!$password){
-        $err['password']='Please input Password.';
+        $err['password']='Please input Password';
     }
 
     // エラー文字が格納されているかテスト
     //var_dump($err);
 
     ////
-    // 3.データベース称号
+    // 3.データベース照合
     ////
+    if(empty($err)){
+
+        $param = 'mysql:dbname='.$DB_NAME.';host='.$DB_HOST;
+        $pdo = new PDO($param, $DB_USER, $DB_PASSWORD);
+        $pdo->query('SET NAMES utf8;');
+
+        // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
+        // ユーザーとパスワードが一致したらデータ取得
+        $sql = "SELECT user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
+        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+        $stmt->execute();
+        $user = $stmt->fetch();
+
+        // 取得値確認
+        //var_dump($user);
+        //exit;
+
+        if($user){
+            ////
+            // 4.ログイン処理
+            ////
+
+            // セッションに保存
+            $_SESSION['USER'] = $user;
+
+            // HOME画面へ遷移
+            header('Location:/');
+            exit;
+
+        }else{
+            // 認証エラー
+            $err['password'] = 'Password authentication failed';
+        }
+
+    }
 
 
-    ////
-    // 4.ログイン処理
-    ////
-
-
-    ////
-    // 5.home画面へ遷移
-    ////
 
 }else{
     // 画面初回アクセス時
