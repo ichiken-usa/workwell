@@ -1,3 +1,43 @@
+<?php
+if($_SERVER['REQUEST_METHOD']=='POST'){
+    // POST処理時
+
+    // 1.入力値取得
+    $user_num = $_POST['user_num'];
+    $password = $_POST['password'];
+
+    // 入力テスト
+    //echo $user_num.'<br>';
+    //echo $password;
+    //exit;
+
+    // 2.バリデーションチェック
+    $err = array();
+
+    if(!$user_num){
+        $err['user_num']='Please input User ID.';
+    }
+
+    if(!$password){
+        $err['password']='Please input Password.';
+    }
+
+    // エラー文字が格納されているかテスト
+    //var_dump($err);
+
+    // 3.データベース称号
+
+    // 4.ログイン処理
+
+    // 5.home画面へ遷移
+
+}else{
+    // 画面初回アクセス時
+    $user_num="";
+    $password="";
+
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -19,16 +59,18 @@
 
     <h1 class="mb-4">Test</h1>
 
-    <form class="border rounded bg-white form-login" action="index.php">
+    <form class="border rounded bg-white form-login" method="post">
         <h2 class="h3 my-3">Login</h2>
-        <div class="form-group mb-4">
+        <div class="form-group p-3">
 
-            <input type="text" class="form-control rounded-pill" placeholder="User ID">
-
+            <!-- ログインID: バリデーションエラーが起きても入力値を保持するようにvalue設定 -->
+            <input type="text" class="form-control rounded-pill<?php if(isset($err['user_num'])) echo ' is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID">
+            <div class="invalid-feedback"><?= $err['user_num'] ?></div>
         </div>
-        <div class="form-group">
+        <div class="form-group p-3">
 
-            <input type="password" class="form-control rounded-pill" placeholder="Password">
+            <input type="password" class="form-control rounded-pill<?php if(isset($err['password'])) echo ' is-invalid'; ?>" name="password" placeholder="Password">
+            <div class="invalid-feedback"><?= $err['password'] ?></div>
         </div>
 
         <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">Login</button>
