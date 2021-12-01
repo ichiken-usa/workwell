@@ -1,0 +1,22 @@
+# DB
+workwell
+
+
+# table
+
+M_user
+id  primary AI
+user_num    varchar
+name        varchar
+password    varchar
+type    tinyint
+
+
+D_work
+id  primary AI
+user_id int
+date    date
+start_time  time
+end_time    time
+break_time  time
+comment     text
