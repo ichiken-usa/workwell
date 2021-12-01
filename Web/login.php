@@ -1,3 +1,103 @@
+<?php
+
+////
+// DB設定をパラメータファイルから読み出し
+////
+require_once (__DIR__ . '/../Config/config.php');
+Config::setConfigDirectory(__DIR__ . '/../Config');
+$DB_NAME = Config::get('DB_NAME');
+$DB_HOST = Config::get('DB_HOST');
+$DB_USER = Config::get('DB_USER');
+$DB_PASSWORD = Config::get('DB_PASSWORD');
+
+// セッション確認
+session_start();
+if(isset($_SESSION['USER'])){
+    // ログイン済みならHOMEへ遷移
+    header('Location:/');
+    exit;
+}
+
+// POST処理時
+if($_SERVER['REQUEST_METHOD']=='POST'){
+
+    ////
+    // 1.入力値取得
+    ////
+    $user_num = $_POST['user_num'];
+    $password = $_POST['password'];
+
+    // 入力テスト
+    //echo $user_num.'<br>';
+    //echo $password;
+    //exit;
+
+    ////
+    // 2.バリデーションチェック
+    ////
+    $err = array();
+
+    if(!$user_num){
+        $err['user_num']='Please input User ID';
+    }
+
+    if(!$password){
+        $err['password']='Please input Password';
+    }
+
+    // エラー文字が格納されているかテスト
+    //var_dump($err);
+
+    ////
+    // 3.データベース照合
+    ////
+    if(empty($err)){
+
+        $param = 'mysql:dbname='.$DB_NAME.';host='.$DB_HOST;
+        $pdo = new PDO($param, $DB_USER, $DB_PASSWORD);
+        $pdo->query('SET NAMES utf8;');
+
+        // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
+        // ユーザーとパスワードが一致したらデータ取得
+        $sql = "SELECT user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
+        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+        $stmt->execute();
+        $user = $stmt->fetch();
+
+        // 取得値確認
+        //var_dump($user);
+        //exit;
+
+        if($user){
+            ////
+            // 4.ログイン処理
+            ////
+
+            // セッションに保存
+            $_SESSION['USER'] = $user;
+
+            // HOME画面へ遷移
+            header('Location:/');
+            exit;
+
+        }else{
+            // 認証エラー
+            $err['password'] = 'Password authentication failed';
+        }
+
+    }
+
+
+
+}else{
+    // 画面初回アクセス時
+    $user_num="";
+    $password="";
+
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -19,16 +119,18 @@
 
     <h1 class="mb-4">Test</h1>
 
-    <form class="border rounded bg-white form-login" action="index.php">
+    <form class="border rounded bg-white form-login" method="post">
         <h2 class="h3 my-3">Login</h2>
-        <div class="form-group mb-4">
+        <div class="form-group p-3">
 
-            <input type="text" class="form-control rounded-pill" placeholder="User ID">
-
+            <!-- ログインID: バリデーションエラーが起きても入力値を保持するようにvalue設定 -->
+            <input type="text" class="form-control rounded-pill <?php if(isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID">
+            <div class="invalid-feedback"><?= $err['user_num'] ?></div>
         </div>
-        <div class="form-group">
+        <div class="form-group p-3">
 
-            <input type="password" class="form-control rounded-pill" placeholder="Password">
+            <input type="password" class="form-control rounded-pill <?php if(isset($err['password'])) echo 'is-invalid'; ?>" name="password" placeholder="Password">
+            <div class="invalid-feedback"><?= $err['password'] ?></div>
         </div>
 
         <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">Login</button>
