@@ -2,7 +2,9 @@
 if($_SERVER['REQUEST_METHOD']=='POST'){
     // POST処理時
 
+    ////
     // 1.入力値取得
+    ////
     $user_num = $_POST['user_num'];
     $password = $_POST['password'];
 
@@ -11,7 +13,9 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     //echo $password;
     //exit;
 
+    ////
     // 2.バリデーションチェック
+    ////
     $err = array();
 
     if(!$user_num){
@@ -25,11 +29,19 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     // エラー文字が格納されているかテスト
     //var_dump($err);
 
+    ////
     // 3.データベース称号
+    ////
 
+
+    ////
     // 4.ログイン処理
+    ////
 
+
+    ////
     // 5.home画面へ遷移
+    ////
 
 }else{
     // 画面初回アクセス時
@@ -64,12 +76,12 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         <div class="form-group p-3">
 
             <!-- ログインID: バリデーションエラーが起きても入力値を保持するようにvalue設定 -->
-            <input type="text" class="form-control rounded-pill<?php if(isset($err['user_num'])) echo ' is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID">
+            <input type="text" class="form-control rounded-pill <?php if(isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID">
             <div class="invalid-feedback"><?= $err['user_num'] ?></div>
         </div>
         <div class="form-group p-3">
 
-            <input type="password" class="form-control rounded-pill<?php if(isset($err['password'])) echo ' is-invalid'; ?>" name="password" placeholder="Password">
+            <input type="password" class="form-control rounded-pill <?php if(isset($err['password'])) echo 'is-invalid'; ?>" name="password" placeholder="Password">
             <div class="invalid-feedback"><?= $err['password'] ?></div>
         </div>
 
