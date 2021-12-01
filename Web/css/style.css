@@ -1,0 +1,49 @@
+body {
+    padding: 40px 0;
+    color: #505050;
+}
+
+.form-login {
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
+    padding: 15px;
+}
+
+.form-login input {
+    max-width: 300px;
+    margin: auto;
+    height: 50px;
+}
+
+.btn {
+    width: 150px;
+    height: 50px;
+}
+
+.form-time-table {
+    width: 90%;
+    margin: auto;
+    padding: 15px;
+}
+
+.form-time-table select {
+    max-width: 200px;
+    height: 50px;
+}
+
+.modal-footer {
+    justify-content: center;
+}
+
+.modal-header .btn-close {
+    padding: 0;
+    margin: 0;
+}
+
+.form-user-table {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+    padding: 15px;
+}
