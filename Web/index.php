@@ -27,7 +27,13 @@ $session_user = $_SESSION['USER'];
 ////
 
 // テスト用の手動日時設定
-$yyyymm = date('2021-11');
+if(isset($_GET['m'])){
+    $yyyymm = $_GET['m'];
+    $day_count = date('t', strtotime($yyyymm));
+}else{
+    $yyyymm = date('Y-m');
+    $day_count = date('t');
+}
 
 $pdo = connect_db();
 
@@ -82,8 +88,11 @@ $day_count = date('t', strtotime("2021-11"));
     <form class="border rounded bg-white form-time-table" action="index.php">
         <h2 class="h3 my-3">List</h2>
 
-        <select class="form-select rounded-pill mb-3" aria-label="Default select example">
-            <option>2021/11</option>
+        <select class="form-select rounded-pill mb-3" name="m" onchange="submit(this.form)">
+            <?php for($i = 0; $i < 12; $i++): ?>
+                <?php $target_yyyymm = strtotime("-{$i}months"); ?>
+                <option value="<?= date('Y-m', $target_yyyymm) ?>"<?php if($yyyymm == date('Y-m', $target_yyyymm)) echo 'selected' ?>><?= date('Y/m', $target_yyyymm) ?></option>
+            <?php endfor; ?>
         </select>
 
         <table class="table table-hover table-bordered">
@@ -94,7 +103,7 @@ $day_count = date('t', strtotime("2021-11"));
                     <th scope="col">End</th>
                     <th scope="col">Break</th>
                     <th scope="col">Comment</th>
-                    <th scope="col"></th>
+                    <th scope="col">Edit</th>
                 </tr>
             </thead>
             <tbody>
