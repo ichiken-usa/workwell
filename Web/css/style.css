@@ -47,3 +47,8 @@ body {
     margin: auto;
     padding: 15px;
 }
+
+.modal-body input{
+    height: 50px;
+    margin: auto;
+}
