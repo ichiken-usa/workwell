@@ -1,14 +1,7 @@
 <?php
 
-////
-// DB設定をパラメータファイルから読み出し
-////
-require_once (__DIR__ . '/../Config/config.php');
-Config::setConfigDirectory(__DIR__ . '/../Config');
-$DB_NAME = Config::get('DB_NAME');
-$DB_HOST = Config::get('DB_HOST');
-$DB_USER = Config::get('DB_USER');
-$DB_PASSWORD = Config::get('DB_PASSWORD');
+// 関数まとめファイル
+require_once (dirname(__FILE__). '/functions.php');
 
 // セッション確認
 session_start();
@@ -53,13 +46,11 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     ////
     if(empty($err)){
 
-        $param = 'mysql:dbname='.$DB_NAME.';host='.$DB_HOST;
-        $pdo = new PDO($param, $DB_USER, $DB_PASSWORD);
-        $pdo->query('SET NAMES utf8;');
+        $pdo = connect_db();
 
         // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
         // ユーザーとパスワードが一致したらデータ取得
-        $sql = "SELECT user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
+        $sql = "SELECT id, user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
         $stmt->bindValue(':password', $password, PDO::PARAM_STR);
