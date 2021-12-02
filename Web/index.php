@@ -1,3 +1,60 @@
+<?php
+
+// 関数まとめファイル
+require_once (dirname(__FILE__). '/functions.php');
+
+////
+// 1.ログインをチェックしログインユーザー情報をセッションから取得
+////
+
+session_start();
+
+if(!isset($_SESSION['USER'])){
+    // ログインされていない場合はログイン画面へ
+    header('Location: /login.php');
+    exit;
+}
+
+// ログインユーザ情報をセッションから取得
+$session_user = $_SESSION['USER'];
+
+// 取得データ確認テスト
+//var_dump($session_user);
+//exit;
+
+////
+// 2.ユーザのデータをDBから取得
+////
+
+// テスト用の手動日時設定
+$yyyymm = date('2021-11');
+
+$pdo = connect_db();
+
+
+// idと年月が一致する全データ取得
+// 表で扱いやすいように行のキーを連番ではなく日付で取得
+$sql = "SELECT date, id, start_time, end_time, break_time, comment FROM d_work WHERE user_id = :user_id AND DATE_FORMAT(date, '%Y-%m') = :date";
+$stmt = $pdo->prepare($sql);
+$stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+$stmt->bindValue(':date', $yyyymm, PDO::PARAM_STR);
+$stmt->execute();
+$work_list = $stmt->fetchAll(PDO::FETCH_UNIQUE);
+
+// 取得データ確認テスト
+// echo '<pre>';
+// var_dump($work_list);
+// echo '</pre>';
+// exit;
+
+
+// 3.DBから取得したデータをテーブルリスト表示
+
+// 設定月の日数取得
+$day_count = date('t', strtotime("2021-11"));
+
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -41,15 +98,57 @@
                 </tr>
             </thead>
             <tbody>
+                <?php for($i = 1; $i <= $day_count; $i++): ?>
+                    <?php
+                    // 表に入れるための変数へ代入
+                        // 初期化
+                        $start_time = '';
+                        $end_time = '';
+                        $break_time = '';
+                        $comment = '';
+                        
+                        // 対象日取得
+                        $target_date = date("Y-m-d", strtotime($yyyymm.'-'.$i));
+                        
+                        if(isset($work_list[$target_date])){
+                            //対象日の配列データ取得
+                            $work = $work_list[$target_date];
+                        
+                            // 対象日の整形
+                            
+
+                            // 時刻の表示フォーマット修正(秒を削除)
+
+                            // start_time
+                            if($work['start_time']){
+                                $start_time = date('H:i', strtotime($work['start_time']));
+                            }
+
+                            // end_time
+                            if($work['end_time']){
+                                $end_time = date('H:i', strtotime($work['end_time']));
+                            }
+
+                            // break_time
+                            if($work['break_time']){
+                                $break_time = date('H:i', strtotime($work['break_time']));
+                            }
+
+                            // commentは一定文字数以上を省略
+                            if($work['comment']){
+                                $comment = mb_strimwidth($work['comment'],0,40,'...');
+                            }
+                        }
+                    ?>
                 <tr>
-                    <th scope="row">1(Mon)</th>
-                    <td>08:00</td>
-                    <td>17:00</td>
-                    <td>01:00</td>
-                    <td>Test Test Test Test</td>
+                    <th scope="row"><?= time_format_dw($target_date); ?></th>
+                    <td><?= $start_time ?></td>
+                    <td><?= $end_time ?></td>
+                    <td><?= $break_time ?></td>
+                    <td><?= $comment ?></td>
                     <td><i class="far fa-edit"></i></td>
                 </tr>
-
+                <?php endfor; ?>
             </tbody>
         </table>
     </form>
