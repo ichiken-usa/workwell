@@ -43,4 +43,12 @@ function time_format_dw($date){
     return $format_date;
 }
 
+function format_time($date){
+
+    if($date){
+        $format_time = date('H:i', strtotime($date));
+    }
+    return $format_time;
+}
+
 ?>

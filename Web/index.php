@@ -26,7 +26,7 @@ $session_user = $_SESSION['USER'];
 // 2.ユーザのデータをDBから取得
 ////
 
-// テスト用の手動日時設定
+// 選択月を取得
 if(isset($_GET['m'])){
     $yyyymm = $_GET['m'];
     $day_count = date('t', strtotime($yyyymm));
@@ -35,8 +35,52 @@ if(isset($_GET['m'])){
     $day_count = date('t');
 }
 
+// DB接続
 $pdo = connect_db();
 
+if ($_SERVER['REQUEST_METHOD']=='POST'){
+    // 登録処理
+
+    // 入力値をPOSTパラメータから取得
+    $modal_start_time = $_POST['modal_start_time'];
+    $modal_end_time = $_POST['modal_end_time'];
+    $modal_break_time = $_POST['modal_break_time'];
+    $modal_comment = $_POST['modal_comment'];
+
+    // 入力日（当日）のデータがあるかどうか確認
+    $sql = "SELECT id FROM d_work WHERE user_id = :user_id AND date = :date LIMIT 1";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+    $stmt->bindValue(':date', date('Y-m-d'), PDO::PARAM_STR);
+    $stmt->execute();
+    $work = $stmt->fetch();   
+    
+    if($work){
+        // 対象日のデータがあればUPDATE
+        $sql = "UPDATE d_work SET start_time = :start_time, end_time = :end_time, break_time = :break_time, comment = :comment WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', (int)$work['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':start_time', $modal_start_time, PDO::PARAM_STR);
+        $stmt->bindValue(':end_time', $modal_end_time, PDO::PARAM_STR);
+        $stmt->bindValue(':break_time', $modal_break_time, PDO::PARAM_STR);
+        $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
+        $stmt->execute();
+
+    }else{
+        // 対象日のデータが無ければINSERT
+        $sql = "INSERT INTO d_work (user_id, date, start_time, end_time, break_time, comment) VALUES (:user_id, :date, :start_time, :end_time, :break_time, :comment)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':date', date('Y-m-d'), PDO::PARAM_STR);    
+        $stmt->bindValue(':start_time', $modal_start_time, PDO::PARAM_STR);
+        $stmt->bindValue(':end_time', $modal_end_time, PDO::PARAM_STR);
+        $stmt->bindValue(':break_time', $modal_break_time, PDO::PARAM_STR);
+        $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
+        $stmt->execute();
+
+    }
+
+} 
 
 // idと年月が一致する全データ取得
 // 表で扱いやすいように行のキーを連番ではなく日付で取得
@@ -53,11 +97,42 @@ $work_list = $stmt->fetchAll(PDO::FETCH_UNIQUE);
 // echo '</pre>';
 // exit;
 
+// 当日のデータがあるかどうかチェック
+$sql = "SELECT id, start_time, end_time, break_time, comment FROM d_work WHERE user_id = :user_id AND date = :date LIMIT 1";
+$stmt = $pdo->prepare($sql);
+$stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+$stmt->bindValue(':date', date('Y-m-d'), PDO::PARAM_STR);
+$stmt->execute();
+$today_work = $stmt->fetch();   
+
+// モーダルの自動表示判定
+$modal_view_flag = TRUE;
+
+if ($today_work){
+    //当日データがあったら読み込み
+    $modal_start_time = $today_work['start_time'];
+    $modal_end_time = $today_work['end_time'];
+    $modal_break_time = $today_work['break_time'];
+    $modal_comment = $today_work['comment'];
+
+    // startとend両方入ってたら自動表示しない
+    if(format_time($modal_start_time) && format_time($modal_end_time)){
+        $modal_view_flag = FALSE;
+    }
+}else{
+    // 当日データがない場合はモーダル初期化
+    $modal_start_time = '';
+    $modal_end_time = '';
+    $modal_break_time = '01:00';
+    $modal_comment = '';
+}
 
 // 3.DBから取得したデータをテーブルリスト表示
 
 // 設定月の日数取得
 $day_count = date('t', strtotime("2021-11"));
+
+
 
 ?>
 
@@ -162,57 +237,57 @@ $day_count = date('t', strtotime("2021-11"));
         </table>
     </form>
 
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        Launch demo modal
-    </button>
-
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <p></p>
-                    <h5 class="modal-title" id="exampleModalLabel">Register</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-primary" role="alert">
-                        11/1(Mon)
+    <form method="POST">
+        <div class="modal fade" id="inputModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <p></p>
+                        <h5 class="modal-title" id="exampleModalLabel">Register</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Start">
-                                    <span class="input-group-text" id="basic-addon1">Set</span>
+                    <div class="modal-body">
+                        <div class="alert alert-primary" role="alert">
+                            <?= date('n').'/'.time_format_dw(date('Y-m-d')) ?>
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="modal_start_time" name="modal_start_time" value="<?= format_time($modal_start_time) ?>" placeholder="Start">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-primary" style="width:50px" id="start_btn">Set</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="modal_end_time" name="modal_end_time" value="<?= format_time($modal_end_time) ?>" placeholder="End">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-primary" style="width:50px" id="end_btn">Set</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="modal_break_time" value="<?= format_time($modal_break_time) ?>"  placeholder="Break">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-sm">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="End">
-                                    <span class="input-group-text" id="basic-addon1">Set</span>
-                                </div>
-                            </div>
-                            <div class="col-sm">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Break">
-                                </div>
+                            <div class="form-group pt-3">
+                                <textarea class="form-control" name="modal_comment" rows="5" placeholder="Comment"><?= $modal_comment ?></textarea>
                             </div>
                         </div>
-                        <div class="form-group pt-3">
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" placeholder="Comment"></textarea>
-                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary rounded-pill">Submit</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary rounded-pill">Submit</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
+        </form>
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
@@ -223,6 +298,31 @@ $day_count = date('t', strtotime("2021-11"));
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
     -->
+
+    <script>
+        // モーダル自動表示
+        <?php if($modal_view_flag): ?>
+        var inputModal = new bootstrap.Modal(document.getElementById('inputModal'));
+        inputModal.toggle();
+        <?php endif ?>
+        // startのsetボタン
+        document.getElementById("start_btn").onclick = function() {
+            const now = new Date();
+            const hour = now.getHours().toString().padStart(2,'0');
+            const minute = now.getMinutes().toString().padStart(2,'0');
+            document.getElementById("modal_start_time").value = hour+':'+minute;
+        };
+
+        // endのsetボタン
+        document.getElementById("end_btn").onclick = function() {
+            const now = new Date();
+            const hour = now.getHours().toString().padStart(2,'0');
+            const minute = now.getMinutes().toString().padStart(2,'0');
+            document.getElementById("modal_end_time").value = hour+':'+minute;
+        };
+
+    </script>
+
 </body>
 
 </html>
