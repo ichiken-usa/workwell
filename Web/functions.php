@@ -43,10 +43,31 @@ function time_format_dw($date){
     return $format_date;
 }
 
-function format_time($date){
+function time_format_mdw($date){
+
+    $format_date = NULL;
+    $week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     if($date){
-        $format_time = date('H:i', strtotime($date));
+        // 日付
+        $day = date('m/d', strtotime($date));
+
+        // 曜日
+        $dow_num = date('w', strtotime($date));
+        $dow = $week[$dow_num];
+        
+        $format_date = $day.'('.$dow.')';
+    }
+
+    return $format_date;
+}
+
+function time_format_hm($time){
+
+    $format_time = NULL;
+
+    if($time){
+        $format_time = date('H:i', strtotime($time));
     }
     return $format_time;
 }
