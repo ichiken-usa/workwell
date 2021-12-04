@@ -1,3 +1,94 @@
+<?php
+
+// 関数まとめファイル
+require_once (dirname(__FILE__). '/../functions.php');
+
+// セッション確認
+session_start();
+if(isset($_SESSION['USER']) && $_SESSION['USER']['type']){
+    // ログイン済みならHOMEへ遷移
+    header('Location:/admin/user-list.php');
+    exit;
+}
+
+// POST処理時
+if($_SERVER['REQUEST_METHOD']=='POST'){
+
+    ////
+    // 1.入力値取得
+    ////
+    $user_num = $_POST['user_num'];
+    $password = $_POST['password'];
+
+    // 入力テスト
+    //echo $user_num.'<br>';
+    //echo $password;
+    //exit;
+
+    ////
+    // 2.バリデーションチェック
+    ////
+    $err = array();
+
+    if(!$user_num){
+        $err['user_num']='Please input User ID';
+    }
+
+    if(!$password){
+        $err['password']='Please input Password';
+    }
+
+    // エラー文字が格納されているかテスト
+    //var_dump($err);
+
+    ////
+    // 3.データベース照合
+    ////
+    if(empty($err)){
+
+        $pdo = connect_db();
+
+        // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
+        // ユーザーとパスワードが一致したらデータ取得
+        $sql = "SELECT id, user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password AND type = 1 LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
+        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+        $stmt->execute();
+        $user = $stmt->fetch();
+
+        // 取得値確認
+        //var_dump($user);
+        //exit;
+
+        if($user){
+            ////
+            // 4.ログイン処理
+            ////
+
+            // セッションに保存
+            $_SESSION['USER'] = $user;
+
+            // HOME画面へ遷移
+            header('Location:/admin/user-list.php');
+            exit;
+
+        }else{
+            // 認証エラー
+            $err['password'] = 'Password authentication failed';
+        }
+
+    }
+
+
+
+}else{
+    // 画面初回アクセス時
+    $user_num="";
+    $password="";
+
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -12,23 +103,25 @@
     <!-- Self-made CSS -->
     <link href="/css/style.css" rel="stylesheet">
 
-    <title>Test | Login Admin</title>
+    <title>Test | Login</title>
 </head>
 
 <body class="text-center bg-primary">
 
-    <h1 class="mb-4 text-white">Test</h1>
+    <h1 class="mb-4">Test</h1>
 
-    <form class="border rounded bg-white form-login" action="user-list.php">
-        <h2 class="h3 my-3">Login for Admin</h2>
-        <div class="form-group mb-4">
+    <form class="border rounded bg-white form-login" method="post">
+        <h2 class="h3 my-3">Login</h2>
+        <div class="form-group p-3">
 
-            <input type="text" class="form-control rounded-pill" placeholder="User ID">
-
+            <!-- ログインID: バリデーションエラーが起きても入力値を保持するようにvalue設定 -->
+            <input type="text" class="form-control rounded-pill <?php if(isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID">
+            <div class="invalid-feedback"><?= $err['user_num'] ?></div>
         </div>
-        <div class="form-group">
+        <div class="form-group p-3">
 
-            <input type="password" class="form-control rounded-pill" placeholder="Password">
+            <input type="password" class="form-control rounded-pill <?php if(isset($err['password'])) echo 'is-invalid'; ?>" name="password" placeholder="Password">
+            <div class="invalid-feedback"><?= $err['password'] ?></div>
         </div>
 
         <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">Login</button>
