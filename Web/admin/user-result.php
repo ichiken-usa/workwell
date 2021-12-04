@@ -152,7 +152,8 @@ $modal_break_ini = '01:00';
 
 
     <!--リストのフォーム-->
-    <form class="border rounded bg-white form-time-table" action="index.php">
+    <form class="border rounded bg-white form-time-table" action="user-result.php">
+        <input type="hidden" name="id" value="<?= $user_id ?>">
         <h2 class="h3 my-3">List</h2>
 
         <div class="btn-toolbar my-3">
