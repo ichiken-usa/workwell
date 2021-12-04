@@ -1,3 +1,23 @@
+<?php
+// 関数まとめファイル
+require_once (dirname(__FILE__). '/../functions.php');
+
+// セッション確認
+session_start();
+if(!isset($_SESSION['USER']) || $_SESSION['USER']['type'] != 1){
+    // ログインされていないならログイン画面へ
+    header('Location:/admin/login.php');
+    exit;
+}
+
+$pdo = connect_db();
+
+$sql = "SELECT * FROM m_user";
+$stmt = $pdo->query($sql);
+$user_list = $stmt->fetchAll(); 
+
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -20,24 +40,24 @@
     <h1 class="mb-4 text-white">Test</h1>
 
     <form class="border rounded bg-white form-user-table">
-        <h2 class="h3 my-3">User list for Admin</h2>
+        <h2 class="h3 my-3">User List</h2>
         <table class="table table-hover table-bordered">
             <thead>
                 <tr class="bg-light">
-                    <th scope="col">id</th>
                     <th scope="col">User ID</th>
                     <th scope="col">Name</th>
                     <th scope="col">Type</th>
                 </tr>
             </thead>
             <tbody>
+                <?php foreach($user_list as $user): ?>
                 <tr>
-                    <th scope="row">1</th>
-                    <td>penape</td>
-                    <td><a href="/admin/user-result.php">penape</td>
-                    <td>2</td>
+                    <th scope="row"><?= $user['user_num'] ?></th>
+                    <!-- 選択ユーザをGETパラメータで渡す -->
+                    <td><a href="/admin/user-result.php?id=<?= $user['id'] ?>"><?= $user['name'] ?></td>
+                    <td><?php if($user['type'] == 1) echo 'Administrator' ?></td>
                 </tr>
-
+                <?php endforeach ?>
             </tbody>
         </table>
     </form>
