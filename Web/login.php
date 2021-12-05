@@ -3,90 +3,96 @@
 // 関数まとめファイル
 require_once (dirname(__FILE__). '/functions.php');
 
-// セッション確認
-session_start();
-if(isset($_SESSION['USER'])){
-    // ログイン済みならHOMEへ遷移
-    header('Location:/');
-    exit;
-}
-
-// POST処理時
-if($_SERVER['REQUEST_METHOD']=='POST'){
-
-    ////
-    // 1.入力値取得
-    ////
-    $user_num = $_POST['user_num'];
-    $password = $_POST['password'];
-
-    // 入力テスト
-    //echo $user_num.'<br>';
-    //echo $password;
-    //exit;
-
-    ////
-    // 2.バリデーションチェック
-    ////
-    $err = array();
-
-    if(!$user_num){
-        $err['user_num']='Please input User ID';
+try{
+    // セッション確認
+    session_start();
+    if(isset($_SESSION['USER'])){
+        // ログイン済みならHOMEへ遷移
+        header('Location:/');
+        exit;
     }
 
-    if(!$password){
-        $err['password']='Please input Password';
-    }
+    // POST処理時
+    if($_SERVER['REQUEST_METHOD']=='POST'){
 
-    // エラー文字が格納されているかテスト
-    //var_dump($err);
+        ////
+        // 1.入力値取得
+        ////
+        $user_num = $_POST['user_num'];
+        $password = $_POST['password'];
 
-    ////
-    // 3.データベース照合
-    ////
-    if(empty($err)){
-
-        $pdo = connect_db();
-
-        // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
-        // ユーザーとパスワードが一致したらデータ取得
-        $sql = "SELECT id, user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
-        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
-        $stmt->execute();
-        $user = $stmt->fetch();
-
-        // 取得値確認
-        //var_dump($user);
+        // 入力テスト
+        //echo $user_num.'<br>';
+        //echo $password;
         //exit;
 
-        if($user){
-            ////
-            // 4.ログイン処理
-            ////
+        ////
+        // 2.バリデーションチェック
+        ////
+        $err = array();
 
-            // セッションに保存
-            $_SESSION['USER'] = $user;
-
-            // HOME画面へ遷移
-            header('Location:/');
-            exit;
-
-        }else{
-            // 認証エラー
-            $err['password'] = 'Password authentication failed';
+        if(!$user_num){
+            $err['user_num']='Please input User ID';
+        }elseif(mb_strlen($user_num, 'utf-8') > 12){
+            $err['user_num']='User ID is too long';
         }
 
+        if(!$password){
+            $err['password']='Please input Password';
+        }
+
+        // エラー文字が格納されているかテスト
+        //var_dump($err);
+
+        ////
+        // 3.データベース照合
+        ////
+        if(empty($err)){
+
+            $pdo = connect_db();
+
+            // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
+            // ユーザーとパスワードが一致したらデータ取得
+            $sql = "SELECT id, user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
+            $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+            $stmt->execute();
+            $user = $stmt->fetch();
+
+            // 取得値確認
+            //var_dump($user);
+            //exit;
+
+            if($user){
+                ////
+                // 4.ログイン処理
+                ////
+
+                // セッションに保存
+                $_SESSION['USER'] = $user;
+
+                // HOME画面へ遷移
+                header('Location:/');
+                exit;
+
+            }else{
+                // 認証エラー
+                $err['password'] = 'Password authentication failed';
+            }
+
+        }
+
+
+
+    }else{
+        // 画面初回アクセス時
+        $user_num="";
+        $password="";
+
     }
-
-
-
-}else{
-    // 画面初回アクセス時
-    $user_num="";
-    $password="";
-
+}catch(Exception $e){
+    header('Location: /error.php');
 }
 ?>
 <!doctype html>
@@ -115,11 +121,11 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         <div class="form-group p-3">
 
             <!-- ログインID: バリデーションエラーが起きても入力値を保持するようにvalue設定 -->
-            <input type="text" class="form-control rounded-pill <?php if(isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID">
+            <input type="text" class="form-control rounded-pill <?php if(isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID" required>
             <div class="invalid-feedback"><?= $err['user_num'] ?></div>
         </div>
         <div class="form-group p-3">
-
+            <!-- パスワード -->
             <input type="password" class="form-control rounded-pill <?php if(isset($err['password'])) echo 'is-invalid'; ?>" name="password" placeholder="Password">
             <div class="invalid-feedback"><?= $err['password'] ?></div>
         </div>

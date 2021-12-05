@@ -2,20 +2,23 @@
 // 関数まとめファイル
 require_once (dirname(__FILE__). '/../functions.php');
 
-// セッション確認
-session_start();
-if(!isset($_SESSION['USER']) || $_SESSION['USER']['type'] != 1){
-    // ログインされていないならログイン画面へ
-    header('Location:/admin/login.php');
-    exit;
+try{
+    // セッション確認
+    session_start();
+    if(!isset($_SESSION['USER']) || $_SESSION['USER']['type'] != 1){
+        // ログインされていないならログイン画面へ
+        header('Location:/admin/login.php');
+        exit;
+    }
+
+    $pdo = connect_db();
+
+    $sql = "SELECT * FROM m_user";
+    $stmt = $pdo->query($sql);
+    $user_list = $stmt->fetchAll(); 
+}catch(Exception $e){
+    header('Location: /error.php');
 }
-
-$pdo = connect_db();
-
-$sql = "SELECT * FROM m_user";
-$stmt = $pdo->query($sql);
-$user_list = $stmt->fetchAll(); 
-
 ?>
 
 <!doctype html>

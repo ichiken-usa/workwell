@@ -1,162 +1,203 @@
 <?php
 
-// 関数まとめファイル
+// php読み込み
 require_once (dirname(__FILE__). '/functions.php');
 
-////
-// ログインをチェックしログインユーザー情報をセッションから取得
-////
+try{
 
-session_start();
+    // 初期化
+    $err = array();
+    $modal_break_ini = '01:00';
+    $modal_view_flag = TRUE;
+    $target_date = date('Y-m-d');
 
-if(!isset($_SESSION['USER'])){
-    // ログインされていない場合はログイン画面へ
-    header('Location: /login.php');
-    exit;
-}
 
-// ログインユーザ情報をセッションから取得
-$session_user = $_SESSION['USER'];
+    ////
+    // ログインをチェックしログインユーザー情報をセッションから取得
+    ////
 
-// 取得データ確認テスト
-//var_dump($session_user);
-//exit;
+    session_start();
 
-////
-// 選択月の取得
-////
+    if(!isset($_SESSION['USER'])){
+        // ログインされていない場合はログイン画面へ
+        header('Location: /login.php');
+        exit;
+    }
 
-if(isset($_GET['m'])){
-    // 選択されている場合は選択月取得
-    $yyyymm = $_GET['m'];
-    
-}else{
-    // 未選択の場合は当月を取得
-    $yyyymm = date('Y-m');
-}
+    // ログインユーザ情報をセッションから取得
+    $session_user = $_SESSION['USER'];
 
-$day_count = date('t', strtotime($yyyymm));
 
-////
-// DB登録処理
-////
+    ////
+    // DB登録処理
+    ////
 
-// 接続
-$pdo = connect_db();
+    // 接続
+    $pdo = connect_db();
 
-if ($_SERVER['REQUEST_METHOD']=='POST'){
-    // Submit時
+    if ($_SERVER['REQUEST_METHOD']=='POST'){
+    // POST時
 
-    // 入力値をPOSTパラメータから取得
-    $modal_target_date = $_POST['modal_target_date'];
-    $modal_start_time = $_POST['modal_start_time'];
-    $modal_end_time = $_POST['modal_end_time'];
-    $modal_break_time = $_POST['modal_break_time'];
-    $modal_comment = $_POST['modal_comment'];
+        // 入力値をPOSTパラメータから取得
+        $modal_target_date = $_POST['modal_target_date'];
+        $modal_start_time = $_POST['modal_start_time'];
+        $modal_end_time = $_POST['modal_end_time'];
+        $modal_break_time = $_POST['modal_break_time'];
+        $modal_comment = $_POST['modal_comment'];
 
-    // var_dump($modal_target_date);
-    // var_dump($modal_start_time);
-    // var_dump($modal_end_time);
-    // var_dump($modal_break_time);
-    // var_dump($modal_comment);
+        // var_dump($modal_target_date);
+        // var_dump($modal_start_time);
+        // var_dump($modal_end_time);
+        // var_dump($modal_break_time);
+        // var_dump($modal_comment);
 
-    // 入力日（当日）のデータがあるかどうか確認
-    $sql = "SELECT id FROM d_work WHERE user_id = :user_id AND date = :date LIMIT 1";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
-    $stmt->bindValue(':date', $modal_target_date, PDO::PARAM_STR);
-    $stmt->execute();
-    $work = $stmt->fetch();   
-    
-    if($work){
-        // 対象日のデータがあればUPDATE
-        $sql = "UPDATE d_work SET start_time = :start_time, end_time = :end_time, break_time = :break_time, comment = :comment WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':id', (int)$work['id'], PDO::PARAM_INT);
-        $stmt->bindValue(':start_time', $modal_start_time, PDO::PARAM_STR);
-        $stmt->bindValue(':end_time', $modal_end_time, PDO::PARAM_STR);
-        $stmt->bindValue(':break_time', $modal_break_time, PDO::PARAM_STR);
-        $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
-        $stmt->execute();
+        // 開始時間確認
+        if(!empty($modal_start_time)){
+            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_start_time)){
+                $modal_start_time = '';
+                $err['modal_start_time'] = 'Invalid time';
+            }
+        }
+
+        // 終了時間確認
+        if(!empty($modal_end_time)){
+            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_end_time)){
+                $modal_end_time = '';
+                $err['modal_end_time'] = 'Invalid time';
+            }
+        }
+
+        // 休憩時間確認
+        if(!empty($modal_break_time)){
+            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_break_time)){
+                $modal_comment = '';
+                $err['modal_break_time'] = 'Invalid time';
+            }
+        }
+
+        // コメント文字数チェック
+        if(mb_strlen($modal_comment, 'utf-8') > 2000){
+            $err['modal_comment'] = 'Text is too long (Less than 2000)';
+        }
+
+        // バリデーションチェック
+        if(empty($err)){
+
+            // 入力日（当日）のデータがあるかどうか確認
+            $sql = "SELECT id FROM d_work WHERE user_id = :user_id AND date = :date LIMIT 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+            $stmt->bindValue(':date', $modal_target_date, PDO::PARAM_STR);
+            $stmt->execute();
+            $work = $stmt->fetch();   
+            
+            if($work){
+                // 対象日のデータがあればUPDATE
+                $sql = "UPDATE d_work SET start_time = :start_time, end_time = :end_time, break_time = :break_time, comment = :comment WHERE id = :id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindValue(':id', (int)$work['id'], PDO::PARAM_INT);
+                $stmt->bindValue(':start_time', $modal_start_time, PDO::PARAM_STR);
+                $stmt->bindValue(':end_time', $modal_end_time, PDO::PARAM_STR);
+                $stmt->bindValue(':break_time', $modal_break_time, PDO::PARAM_STR);
+                $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
+                $stmt->execute();
+
+            }else{
+                // 対象日のデータが無ければINSERT
+                $sql = "INSERT INTO d_work (user_id, date, start_time, end_time, break_time, comment) VALUES (:user_id, :date, :start_time, :end_time, :break_time, :comment)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+                $stmt->bindValue(':date', $modal_target_date, PDO::PARAM_STR);    
+                $stmt->bindValue(':start_time', $modal_start_time, PDO::PARAM_STR);
+                $stmt->bindValue(':end_time', $modal_end_time, PDO::PARAM_STR);
+                $stmt->bindValue(':break_time', $modal_break_time, PDO::PARAM_STR);
+                $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
+                $stmt->execute();
+
+            }
+            $modal_view_flag = FALSE;
+
+        }else{
+            $modal_view_flag = TRUE;
+        }
 
     }else{
-        // 対象日のデータが無ければINSERT
-        $sql = "INSERT INTO d_work (user_id, date, start_time, end_time, break_time, comment) VALUES (:user_id, :date, :start_time, :end_time, :break_time, :comment)";
+    // POST以外
+        ////
+        // モーダル自動表示用の処理
+        ////
+
+        // モーダルを自動表示するかどうか判定するために当日のデータ取得
+        $sql = "SELECT id, start_time, end_time, break_time, comment FROM d_work WHERE user_id = :user_id AND date = :date LIMIT 1";
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
-        $stmt->bindValue(':date', $modal_target_date, PDO::PARAM_STR);    
-        $stmt->bindValue(':start_time', $modal_start_time, PDO::PARAM_STR);
-        $stmt->bindValue(':end_time', $modal_end_time, PDO::PARAM_STR);
-        $stmt->bindValue(':break_time', $modal_break_time, PDO::PARAM_STR);
-        $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
+        $stmt->bindValue(':date', date('Y-m-d'), PDO::PARAM_STR);
         $stmt->execute();
+        $today_work = $stmt->fetch();   
+
+        if ($today_work){
+            //当日データがあったら格納
+            $modal_start_time = $today_work['start_time'];
+            $modal_end_time = $today_work['end_time'];
+            $modal_break_time = $today_work['break_time'];
+            $modal_comment = $today_work['comment'];
+            // startとend両方入ってたら自動表示しない
+            if(time_format_hm($modal_start_time) and time_format_hm($modal_end_time)){
+                $modal_view_flag = FALSE;
+            }
+        }
+        else{
+        // 当日データがない場合はモーダルの項目を初期化
+            $modal_start_time = '';
+            $modal_end_time = '';
+            $modal_break_time = $modal_break_ini;
+            $modal_comment = '';
+        }
 
     }
 
-} 
-
-////
-// リストデータ取得
-////
-
-// idと年月が一致する全データ取得
-// 表で扱いやすいように行のキーを連番ではなく日付で取得
-$sql = "SELECT date, id, start_time, end_time, break_time, comment FROM d_work WHERE user_id = :user_id AND DATE_FORMAT(date, '%Y-%m') = :date";
-$stmt = $pdo->prepare($sql);
-$stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
-$stmt->bindValue(':date', $yyyymm, PDO::PARAM_STR);
-$stmt->execute();
-$work_list = $stmt->fetchAll(PDO::FETCH_UNIQUE);
-
-// 取得データ確認テスト
-// echo '<pre>';
-// var_dump($work_list);
-// echo '</pre>';
-// exit;
 
 
-////
-// モーダル用の処理
-////
 
-$modal_break_ini = '01:00';
+    ////
+    // リストデータ取得
+    ////
 
-// モーダルを自動表示するかどうか判定するために当日のデータ取得
-$sql = "SELECT id, start_time, end_time, break_time, comment FROM d_work WHERE user_id = :user_id AND date = :date LIMIT 1";
-$stmt = $pdo->prepare($sql);
-$stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
-$stmt->bindValue(':date', date('Y-m-d'), PDO::PARAM_STR);
-$stmt->execute();
-$today_work = $stmt->fetch();   
+    // 選択月の取得
+    if(isset($_GET['m'])){
+    // 選択されている場合は選択月取得
+        $selected_date = $_GET['m'];
 
-// モーダルの自動表示判定
-$modal_view_flag = FALSE;
+        // Getの日付改ざん確認
+        if(count(explode('-', $selected_date))!=2){
+            throw new Exception('Invalid data', 500);
+        }
+        
+        
+    }else{
+    // 未選択の場合は当月を取得
+        $selected_date = date('Y-m');
+    }
+    // 選択月の日数取得
+    $day_count = date('t', strtotime($selected_date));
 
-// 同じ月ならモーダルを自動表示
-if($yyyymm == date('Y-m')){
-    $modal_view_flag = TRUE;
-}
-
-
-if ($today_work){
-    //当日データがあったら格納
-    $modal_start_time = $today_work['start_time'];
-    $modal_end_time = $today_work['end_time'];
-    $modal_break_time = $today_work['break_time'];
-    $modal_comment = $today_work['comment'];
-    // startとend両方入ってたら自動表示しない
-    if(time_format_hm($modal_start_time) or time_format_hm($modal_end_time)){
+    // 同じ月ならモーダルを自動表示
+    if($selected_date != date('Y-m')){
         $modal_view_flag = FALSE;
     }
-}
-else{
-// 当日データがない場合はモーダルの項目を初期化
-    $modal_start_time = '';
-    $modal_end_time = '';
-    $modal_break_time = $modal_break_ini;
-    $modal_comment = '';
-}
 
+    // idと年月が一致する全データ取得
+    // 表で扱いやすいように行のキーを連番ではなく日付で取得
+    $sql = "SELECT date, id, start_time, end_time, break_time, comment FROM d_work WHERE user_id = :user_id AND DATE_FORMAT(date, '%Y-%m') = :date";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':user_id', (int)$session_user['id'], PDO::PARAM_INT);
+    $stmt->bindValue(':date', $selected_date, PDO::PARAM_STR);
+    $stmt->execute();
+    $work_list = $stmt->fetchAll(PDO::FETCH_UNIQUE);
+
+}catch(Exception $e){
+    header('Location: /error.php');
+}
 
 ?>
 
@@ -194,10 +235,11 @@ else{
             <!-- 月選択 -->
             <select class="form-select rounded-pill m-2" name="m" onchange="submit(this.form)">
                 <?php for($i = 0; $i < 12; $i++): ?>
-                    <?php $target_yyyymm = strtotime("-{$i}months"); ?>
-                    <option value="<?= date('Y-m', $target_yyyymm) ?>"<?php if($yyyymm == date('Y-m', $target_yyyymm)) echo 'selected' ?>><?= date('Y/m', $target_yyyymm) ?></option>
+                    <?php $dropdown_date = strtotime("-{$i}months"); ?>
+                    <option value="<?= date('Y-m', $dropdown_date) ?>"<?php if($selected_date == date('Y-m', $dropdown_date)) echo 'selected' ?>><?= date('Y/m', $dropdown_date) ?></option>
                 <?php endfor; ?>
             </select>
+            <!-- Register Button -->
             <button type="button" class="btn btn-primary rounded-pill m-2" value="<?= date('Y-m-d') ?>" onclick="show_modal(this)">Register</button>
         </div>
         <!-- Button trigger modal -->
@@ -224,11 +266,11 @@ else{
                         $comment = '';
                         
                         // 対象日取得
-                        $target_date = date("Y-m-d", strtotime($yyyymm.'-'.$i));
+                        $list_date = date("Y-m-d", strtotime($selected_date.'-'.$i));
                         
-                        if(isset($work_list[$target_date])){
+                        if(isset($work_list[$list_date])){
                             //対象日の配列データ取得
-                            $work = $work_list[$target_date];
+                            $work = $work_list[$list_date];
                         
                             // 対象日の整形
                             
@@ -256,14 +298,14 @@ else{
                             }
                         }
                     ?>
-                <tr id="tr_<?= $target_date; ?>">
+                <tr id="tr_<?= $list_date; ?>">
                     <!-- データ行 -->
-                    <th scope="row"><?= time_format_mdw($target_date); ?></th>
+                    <th scope="row"><?= time_format_mdw($list_date); ?></th>
                     <td><?= $start_time ?></td>
                     <td><?= $end_time ?></td>
                     <td><?= $break_time ?></td>
                     <td><?= $comment ?></td>
-                    <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $target_date; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
+                    <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $list_date; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
                 </tr>
                 <?php endfor; ?>
             </tbody>
@@ -272,7 +314,7 @@ else{
 
     <!-- Modal -->
     <form method="POST">
-        <input type="hidden" id="modal_target_date" name='modal_target_date' value="<?= date("Y-m-d") ?>"/>
+        <input type="hidden" id="modal_target_date" name='modal_target_date' value="<?= $target_date ?>"/>
         <div class="modal fade" id="inputModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -282,36 +324,46 @@ else{
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        <!-- 入力日 -->
                         <div class="alert alert-primary" role="alert">
-                            <span id="modal_date" name="modal_date"><?= time_format_mdw(date('Y-m-d')) ?></span>
+                            <span id="modal_date" name="modal_date"><?= time_format_mdw($target_date) ?></span>
                         </div>
                         <div class="container">
                             <div class="row">
                                 <div class="col-sm">
+                                    <!-- 開始時間 -->
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="modal_start_time" name="modal_start_time" value="<?= time_format_hm($modal_start_time) ?>" placeholder="Start">
+                                        <input type="text" class="form-control <?php if(isset($err['modal_start_time'])) echo 'is-invalid'; ?>" id="modal_start_time" name="modal_start_time" value="<?= time_format_hm($modal_start_time) ?>" placeholder="Start">
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-primary" style="width:50px" id="start_btn">Set</button>
                                         </div>
+                                        <div class="invalid-feedback"><?= $err['modal_start_time'] ?></div>
                                     </div>
                                 </div>
                                 <div class="col-sm">
+                                    <!-- 終了時間 -->
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="modal_end_time" name="modal_end_time" value="<?= time_format_hm($modal_end_time) ?>" placeholder="End">
+                                        <input type="text" class="form-control <?php if(isset($err['modal_end_time'])) echo 'is-invalid'; ?>" id="modal_end_time" name="modal_end_time" value="<?= time_format_hm($modal_end_time) ?>" placeholder="End">
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-primary" style="width:50px" id="end_btn">Set</button>
                                         </div>
+                                        <div class="invalid-feedback"><?= $err['modal_end_time'] ?></div>
                                     </div>
                                 </div>
+                                <!-- 休憩時間 -->
                                 <div class="col-sm">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="modal_break_time" name="modal_break_time" value="<?= time_format_hm($modal_break_time) ?>"  placeholder="Break">
+                                        <input type="text" class="form-control <?php if(isset($err['modal_break_time'])) echo 'is-invalid'; ?>" id="modal_break_time" name="modal_break_time" value="<?= time_format_hm($modal_break_time) ?>"  placeholder="Break">
                                     </div>
+                                    <div class="invalid-feedback"><?= $err['modal_break_time'] ?></div>
                                 </div>
                             </div>
+                            <!-- コメント -->
                             <div class="form-group pt-3">
-                                <textarea class="form-control" name="modal_comment" id="modal_comment" rows="5" placeholder="Comment"><?= $modal_comment ?></textarea>
+                                <textarea class="form-control <?php if(isset($err['modal_comment'])) echo 'is-invalid'; ?>" name="modal_comment" id="modal_comment" rows="5" placeholder="Comment"><?= $modal_comment ?></textarea>
+                                <div class="invalid-feedback"><?= $err['modal_comment'] ?></div>
                             </div>
+                            
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -322,6 +374,7 @@ else{
             </div>
         </div>
         </form>
+
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
@@ -341,7 +394,7 @@ else{
         <?php endif ?>
 
 
-        // 編集ボタンでモーダル立ち上げ
+        // モーダル立ち上げボタン
         function show_modal(obj){
             var inputModal = new bootstrap.Modal(document.getElementById('inputModal'))
             inputModal.toggle()
@@ -371,8 +424,14 @@ else{
             document.getElementById("modal_comment").innerText = comment
             document.getElementById("modal_target_date").value = target_date
 
-            
-            
+            // エラー表示をリセット
+            document.getElementById("modal_date").classList.remove('is-invalid')
+            document.getElementById("modal_start_time").classList.remove('is-invalid')
+            document.getElementById("modal_end_time").classList.remove('is-invalid')
+            document.getElementById("modal_break_time").classList.remove('is-invalid')
+            document.getElementById("modal_comment").classList.remove('is-invalid')
+
+
         }
 
 
@@ -382,7 +441,7 @@ else{
             const hour = now.getHours().toString().padStart(2,'0')
             const minute = now.getMinutes().toString().padStart(2,'0')
             document.getElementById("modal_start_time").value = hour+':'+minute
-        };
+        }
 
         // endのsetボタン
         document.getElementById("end_btn").onclick = function() {
@@ -390,7 +449,7 @@ else{
             const hour = now.getHours().toString().padStart(2,'0')
             const minute = now.getMinutes().toString().padStart(2,'0')
             document.getElementById("modal_end_time").value = hour+':'+minute
-        };
+        }
 
     </script>
 
