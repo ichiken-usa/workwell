@@ -7,7 +7,7 @@ try{
     session_start();
     if(!isset($_SESSION['USER']) || $_SESSION['USER']['type'] != 1){
         // ログインされていないならログイン画面へ
-        header('Location:/admin/login.php');
+        redirect('/admin/login.php');
         exit;
     }
 
@@ -17,7 +17,7 @@ try{
     $stmt = $pdo->query($sql);
     $user_list = $stmt->fetchAll(); 
 }catch(Exception $e){
-    header('Location: /error.php');
+    redirect('/error.php');
 }
 ?>
 

@@ -8,8 +8,7 @@ try{
     session_start();
     if(isset($_SESSION['USER']) && $_SESSION['USER']['type']){
         // ログイン済みならHOMEへ遷移
-        header('Location:/admin/user-list.php');
-        exit;
+        redirect('/admin/user-list.php');
     }
 
     // POST処理時
@@ -68,8 +67,7 @@ try{
                 $_SESSION['USER'] = $user;
 
                 // HOME画面へ遷移
-                header('Location:/admin/user-list.php');
-                exit;
+                redirect('/admin/user-list.php');
 
             }else{
                 // 認証エラー

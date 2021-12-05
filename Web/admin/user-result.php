@@ -19,8 +19,7 @@ try{
 
     if(!isset($_SESSION['USER'])){
         // ログインされていない場合はログイン画面へ
-        header('Location: /admin/login.php');
-        exit;
+        redirect('/admin/login.php');
     }
 
     // 選択ユーザ情報をセッションから取得
@@ -55,7 +54,7 @@ try{
 
         // 開始時間確認
         if(!empty($modal_start_time)){
-            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_start_time)){
+            if(!check_time_format($modal_start_time)){
                 $modal_start_time = '';
                 $err['modal_start_time'] = 'Invalid time';
             }
@@ -63,7 +62,7 @@ try{
 
         // 終了時間確認
         if(!empty($modal_end_time)){
-            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_end_time)){
+            if(!check_time_format($modal_end_time)){
                 $modal_end_time = '';
                 $err['modal_end_time'] = 'Invalid time';
             }
@@ -71,7 +70,7 @@ try{
 
         // 休憩時間確認
         if(!empty($modal_break_time)){
-            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_break_time)){
+            if(!check_time_format($modal_break_time)){
                 $modal_comment = '';
                 $err['modal_break_time'] = 'Invalid time';
             }
@@ -195,7 +194,7 @@ try{
     $work_list = $stmt->fetchAll(PDO::FETCH_UNIQUE);
 
 }catch(Exception $e){
-    header('Location: /error.php');
+    redirect('/error.php');
 }
 
 ?>
