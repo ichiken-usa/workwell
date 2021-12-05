@@ -65,6 +65,7 @@ function time_format_mdw($date){
     return $format_date;
 }
 
+// 時間をHH:mmにフォーマット
 function time_format_hm($time){
 
     $format_time = NULL;
