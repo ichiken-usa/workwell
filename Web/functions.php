@@ -72,4 +72,24 @@ function time_format_hm($time){
     return $format_time;
 }
 
+// HTMLエスケープ処理(XSS対策)
+function escape($original_str){
+    return htmlspecialchars($original_str, ENT_QUOTES, 'UTF-8');
+}
+
+// トークン発行
+function set_token(){
+    $token = sha1(uniqid(mt_rand(),true));
+    $_SESSION['CSRF_TOKEN']= $token;
+}
+
+// セッションのトークンと画面のトークンが一致するか確認
+function check_token(){
+    //一致しなければ不正呼び出しと判断
+    if(empty($_SESSION["CSRF_TOKEN"])||($_SESSION['CSRF_TOKEN']!=$_POST['CSRF_TOKEN'])){
+        unset($pdo);
+        header('Location: /error.php');
+        exit;
+    }
+}
 ?>

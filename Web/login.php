@@ -12,8 +12,11 @@ try{
         exit;
     }
 
-    // POST処理時
     if($_SERVER['REQUEST_METHOD']=='POST'){
+    // POST処理時
+
+        // 不正呼び出しか確認
+        check_token();
 
         ////
         // 1.入力値取得
@@ -48,23 +51,18 @@ try{
         // 3.データベース照合
         ////
         if(empty($err)){
-
+        // エラー無し時
             $pdo = connect_db();
 
             // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
             // ユーザーとパスワードが一致したらデータ取得
-            $sql = "SELECT id, user_num, name, type FROM m_user WHERE user_num = :user_num AND password =:password LIMIT 1";
+            $sql = "SELECT * FROM m_user WHERE user_num = :user_num LIMIT 1";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
-            $stmt->bindValue(':password', $password, PDO::PARAM_STR);
             $stmt->execute();
             $user = $stmt->fetch();
 
-            // 取得値確認
-            //var_dump($user);
-            //exit;
-
-            if($user){
+            if($user && password_verify($password, $user['password'])){
                 ////
                 // 4.ログイン処理
                 ////
@@ -86,9 +84,12 @@ try{
 
 
     }else{
-        // 画面初回アクセス時
+    // 画面初回アクセス時
         $user_num="";
         $password="";
+
+        // これで発行したトークンを呼び出し元画面のhiddenに保存しておく
+        set_token();
 
     }
 }catch(Exception $e){
@@ -117,6 +118,7 @@ try{
     <h1 class="mb-4">Test</h1>
 
     <form class="border rounded bg-white form-login" method="post">
+    <input type="hidden" name="CSRF_TOKEN" value="<?= $_SESSION['CSRF_TOKEN'] ?>">
         <h2 class="h3 my-3">Login</h2>
         <div class="form-group p-3">
 
