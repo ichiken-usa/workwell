@@ -17,7 +17,7 @@ body {
 }
 
 .btn {
-    width: 150px;
+    width: 100px;
     height: 50px;
 }
 
@@ -25,19 +25,12 @@ body {
     width: 90%;
     margin: auto;
     padding: 15px;
+    
 }
 
 .form-time-table select {
-    max-width: 200px;
+    max-width: 120px;
     height: 50px;
-}
-
-td.comment {
-    display: block;
-    width: 100px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 
 .modal-footer {
@@ -59,4 +52,6 @@ td.comment {
 .modal-body input{
     height: 50px;
     margin: auto;
+    padding: 0.5em;
 }
+

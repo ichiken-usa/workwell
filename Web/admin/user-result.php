@@ -11,11 +11,7 @@ try{
     $modal_view_flag = FALSE;
     $target_date = date('Y-m-d');
 
-
-    ////
-    // ログインをチェックしログインユーザー情報をセッションから取得
-    ////
-
+    // セッション確認
     session_start();
 
     if(!isset($_SESSION['USER'])){

@@ -39,7 +39,7 @@
                             <!-- 休憩時間 -->
                             <div class="col-sm">
                                 <div class="input-group">
-                                    <input type="text" class="form-control <?php if (isset($err['modal_break_time'])) echo 'is-invalid'; ?>" id="modal_break_time" name="modal_break_time" value="<?= time_format_hm($modal_break_time) ?>" placeholder="Break">
+                                    <input type="text" style="width:70px;" class="form-control <?php if (isset($err['modal_break_time'])) echo 'is-invalid'; ?>" id="modal_break_time" name="modal_break_time" value="<?= time_format_hm($modal_break_time) ?>" placeholder="Break">
                                 </div>
                                 <div class="invalid-feedback"><?= $err['modal_break_time'] ?></div>
                             </div>

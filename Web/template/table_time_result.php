@@ -18,6 +18,7 @@
                 $end_time = '';
                 $break_time = '';
                 $comment = '';
+                $comment_title = '';
                 
                 // 対象日取得
                 $list_date = date("Y-m-d", strtotime($selected_date.'-'.$i));
@@ -57,7 +58,7 @@
             <td><?= $start_time ?></td>
             <td><?= $end_time ?></td>
             <td><?= $break_time ?></td>
-            <td class="comment" title="<?= escape($comment_title) ?>"><?= escape($comment) ?></td>
+            <td class="comment text-break" style="white-space: normal" title="<?= escape($comment_title) ?>"><?= escape($comment) ?></td>
             <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $list_date; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
         </tr>
         <?php endfor; ?>
