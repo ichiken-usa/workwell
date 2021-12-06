@@ -15,5 +15,5 @@
         <div class="invalid-feedback"><?= $err['password'] ?></div>
     </div>
 
-    <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">Login</button>
+    <button type="submit" class="btn btn-primary text-white rounded-pill my-4">Login</button>
 </form>
