@@ -19,8 +19,9 @@
         var start_time = th.nextElementSibling.innerText
         var end_time = th.nextElementSibling.nextElementSibling.innerText
         var break_time = th.nextElementSibling.nextElementSibling.nextElementSibling.innerText
-        var comment = th.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.innerText
-        console.log(target_date)
+        var comment = th.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.getAttribute("title")        
+
+        console.log(comment)
 
         if (break_time == '') {
             break_time = '<?= $modal_break_ini; ?>'
