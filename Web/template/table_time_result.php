@@ -43,9 +43,11 @@
                         $break_time = date('H:i', strtotime($work['break_time']));
                     }
 
-                    // commentは一定文字数以上を省略
                     if($work['comment']){
+                        // 表示用に一定の長さは省略
                         $comment = mb_strimwidth($work['comment'],0,40,'...');
+                        // マウス載せたら全文表示＆モーダルはこっちから取得
+                        $comment_title = $work['comment'];
                     }
                 }
             ?>
@@ -55,7 +57,7 @@
             <td><?= $start_time ?></td>
             <td><?= $end_time ?></td>
             <td><?= $break_time ?></td>
-            <td><?= escape($comment) ?></td>
+            <td class="comment" title="<?= escape($comment_title) ?>"><?= escape($comment) ?></td>
             <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $list_date; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
         </tr>
         <?php endfor; ?>

@@ -32,6 +32,14 @@ body {
     height: 50px;
 }
 
+td.comment {
+    display: block;
+    width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .modal-footer {
     justify-content: center;
 }
