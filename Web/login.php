@@ -14,8 +14,12 @@ try {
         redirect('/');
     }
 
+    ////
+    // ログイン処理
+    ////
+
+    // POST処理時（Submit）
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // POST処理時
 
         // 不正呼び出しか確認
         check_token();
@@ -32,12 +36,15 @@ try {
         // バリデーション
         $err = array();
 
-        if (!$user_num) {
-            $err['user_num'] = 'Please input User ID';
-        } elseif (mb_strlen($user_num, 'utf-8') > 12) {
-            $err['user_num'] = 'User ID is too long';
+        // ユーザーID入力なし（HTML側でも制限してるが一応）
+        if(!$user_num){
+            $err['user_num']='Please input User ID';
+        // ユーザーID長すぎ
+        }elseif(mb_strlen($user_num, 'utf-8') > 12){
+            $err['user_num']='User ID is too long';
         }
 
+        // パスワード入力チェック
         if (!$password) {
             $err['password'] = 'Please input Password';
         }
@@ -48,23 +55,22 @@ try {
         ////
         // データベース照合
         ////
+
+        // エラー無しならDBからユーザ情報取得
         if (empty($err)) {
-        // エラー無し時
+
             $pdo = connect_db();
 
             // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
-            // ユーザーとパスワードが一致したらデータ取得
+            // パスワードは暗号化しているのでそのままでは比較不可 -> password_verifyを使う
             $sql = "SELECT * FROM m_user WHERE user_num = :user_num LIMIT 1";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
             $stmt->execute();
             $user = $stmt->fetch();
 
-            ////
-            // ログイン処理
-            ////
+            // 暗号化パスワード認証成功時
             if ($user && password_verify($password, $user['password'])) {
-            // 暗号化パスワード認証成功
 
                 // セッションに保存
                 $_SESSION['USER'] = $user;
@@ -72,17 +78,18 @@ try {
                 // HOME画面へ遷移
                 redirect('/');
 
-            } else {
             // 認証エラー
+            } else {
                 $err['password'] = 'Password authentication failed';
             }
         }
-    } else {
+
     // 画面初回アクセス時
+    } else {
         $user_num = "";
         $password = "";
 
-        // これで発行したトークンを呼び出し元画面のhiddenに保存しておく
+        // 発行したトークンを呼び出し元画面のhiddenに保存しておく
         set_token();
     }
 } catch (Exception $e) {

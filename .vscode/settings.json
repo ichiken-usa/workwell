@@ -2,6 +2,7 @@
     "cSpell.ignoreWords": [
         "csrf",
         "endfor",
+        "endforeach",
         "target",
         "token",
         "workwell",

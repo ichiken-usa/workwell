@@ -1,5 +1,7 @@
 <form class="border rounded bg-white form-login" method="post">
+    <!-- トークン用hiddenタグ -->
     <input type="hidden" name="CSRF_TOKEN" value="<?= $_SESSION['CSRF_TOKEN'] ?>">
+
     <h2 class="h3 my-3">Login</h2>
     <div class="form-group p-3">
 

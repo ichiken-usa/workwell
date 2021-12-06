@@ -26,9 +26,6 @@
                     //対象日の配列データ取得
                     $work = $work_list[$list_date];
                 
-                    // 対象日の整形
-                    
-
                     // 時刻の表示フォーマット修正(秒を削除)
 
                     // start_time
@@ -58,7 +55,7 @@
             <td><?= $start_time ?></td>
             <td><?= $end_time ?></td>
             <td><?= $break_time ?></td>
-            <td><?= $comment ?></td>
+            <td><?= escape($comment) ?></td>
             <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $list_date; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
         </tr>
         <?php endfor; ?>

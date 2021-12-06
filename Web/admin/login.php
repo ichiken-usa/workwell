@@ -14,12 +14,16 @@ try{
         redirect('/admin/user-list.php');
     }
 
-    // POST処理時
+    ////
+    // ログイン処理
+    ////
+
+    // POST処理時（Submit）
     if($_SERVER['REQUEST_METHOD']=='POST'){
 
-        ////
-        // 1.入力値取得
-        ////
+        // 不正呼び出しか確認
+        check_token();
+
         $user_num = $_POST['user_num'];
         $password = $_POST['password'];
 
@@ -28,17 +32,18 @@ try{
         //echo $password;
         //exit;
 
-        ////
-        // 2.バリデーションチェック
-        ////
+        // バリデーション
         $err = array();
 
+        // ユーザーID入力なし（HTML側でも制限してるが一応）
         if(!$user_num){
             $err['user_num']='Please input User ID';
+        // ユーザーID長すぎ
         }elseif(mb_strlen($user_num, 'utf-8') > 12){
             $err['user_num']='User ID is too long';
         }
 
+        // パスワード入力チェック
         if(!$password){
             $err['password']='Please input Password';
         }
@@ -47,14 +52,16 @@ try{
         //var_dump($err);
 
         ////
-        // 3.データベース照合
+        // データベース照合
         ////
+
+        // エラー無しならDBからユーザ情報取得
         if(empty($err)){
 
             $pdo = connect_db();
 
             // SQLインジェクション対策で変数を直接SQL文に入れずプレースホルダを使う($stmt->bindValue)
-            // ユーザーとパスワードが一致したらデータ取得
+            // パスワードは暗号化しているのでそのままでは比較不可 -> password_verifyを使う
             $sql = "SELECT * FROM m_user WHERE user_num = :user_num LIMIT 1";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':user_num', $user_num, PDO::PARAM_STR);
@@ -62,9 +69,6 @@ try{
             $user = $stmt->fetch();
 
             if($user && password_verify($password, $user['password'])){
-                ////
-                // 4.ログイン処理
-                ////
 
                 // セッションに保存
                 $_SESSION['USER'] = $user;
@@ -79,18 +83,17 @@ try{
 
         }
 
-
-    }else{
-        // 画面初回アクセス時
+    // 画面初回アクセス時
+    }else{    
         $user_num="";
         $password="";
 
-        // トークン発行
+        // 発行したトークンを呼び出し元画面のhiddenに保存しておく
         set_token();
 
     }
 }catch(Exception $e){
-    header('Location: /error.php');
+    redirect('/error.php');
 }
 ?>
 <!doctype html>
