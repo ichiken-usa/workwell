@@ -111,13 +111,12 @@ try {
                 $stmt->bindValue(':comment', $modal_comment, PDO::PARAM_STR);
                 $stmt->execute();
             }
-        } 
+        }
         // 入力にエラーがある場合
-        else { 
+        else {
             // 入力エラー表示のためにモーダルを再度自動表示させる
             $modal_view_flag = TRUE;
         }
-    
     } else { // POST以外
 
         // モーダルを自動表示するかどうか判定するために当日のデータ取得
@@ -196,7 +195,21 @@ try {
     <?php include('template/header.php') ?>
 
     <!-- 日報表示リスト読み込み -->
-    <?php include('template/form_time_table.php') ?>
+    <form class="border rounded bg-white form-time-table" action="index.php">
+        <h2 class="h3 my-3">List</h2>
+
+        <div class="btn-toolbar my-3">
+
+            <!-- 月ドロップダウン -->
+            <?php include('template/dropdown_month.php') ?>
+            <!-- Modal button -->
+            <button type="button" class="btn btn-primary rounded-pill m-2" value="<?= date('Y-m-d') ?>" onclick="show_modal(this)">Register</button>
+        </div>
+
+        <!-- リスト表示テーブル -->
+        <?php include('template/table_time_result.php') ?>
+    </form>
+
 
     <!-- モーダル読み込み -->
     <?php include('template/form_modal_work_register.php') ?>
@@ -204,68 +217,8 @@ try {
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
-    <script>
-        // モーダル自動表示
-        <?php if ($modal_view_flag) : ?>
-            var inputModal = new bootstrap.Modal(document.getElementById('inputModal'))
-            inputModal.toggle()
-        <?php endif ?>
-
-        // モーダル立ち上げボタン
-        function show_modal(obj) {
-            var inputModal = new bootstrap.Modal(document.getElementById('inputModal'))
-            inputModal.toggle()
-
-            // タグのオブジェクトからvalue取得
-            var target_date = obj.value
-
-            //対象日の表データを取得するためにtrタグに日付idを付与している。trの子要素を取得して次の要素の値取得
-            var th = document.getElementById('tr_' + target_date).firstElementChild
-            var day = th.innerText
-            var start_time = th.nextElementSibling.innerText
-            var end_time = th.nextElementSibling.nextElementSibling.innerText
-            var break_time = th.nextElementSibling.nextElementSibling.nextElementSibling.innerText
-            var comment = th.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.innerText
-            console.log(target_date)
-
-            if (break_time == '') {
-                break_time = '<?= $modal_break_ini; ?>'
-            }
-
-            // 取得したデータをモーダルへ入力
-            document.getElementById("modal_date").innerText = day
-            document.getElementById("modal_start_time").value = start_time
-            document.getElementById("modal_end_time").value = end_time
-            document.getElementById("modal_break_time").value = break_time
-            document.getElementById("modal_comment").innerText = comment
-            document.getElementById("modal_target_date").value = target_date
-
-            // エラー表示をリセット
-            document.getElementById("modal_date").classList.remove('is-invalid')
-            document.getElementById("modal_start_time").classList.remove('is-invalid')
-            document.getElementById("modal_end_time").classList.remove('is-invalid')
-            document.getElementById("modal_break_time").classList.remove('is-invalid')
-            document.getElementById("modal_comment").classList.remove('is-invalid')
-
-
-        }
-
-        // startのsetボタン
-        document.getElementById("start_btn").onclick = function() {
-            const now = new Date()
-            const hour = now.getHours().toString().padStart(2, '0')
-            const minute = now.getMinutes().toString().padStart(2, '0')
-            document.getElementById("modal_start_time").value = hour + ':' + minute
-        }
-
-        // endのsetボタン
-        document.getElementById("end_btn").onclick = function() {
-            const now = new Date()
-            const hour = now.getHours().toString().padStart(2, '0')
-            const minute = now.getMinutes().toString().padStart(2, '0')
-            document.getElementById("modal_end_time").value = hour + ':' + minute
-        }
-    </script>
+    <!-- 日報登録モーダル用のスクリプト読み込み -->
+    <?php include('template/script_modal.php') ?>
 
 </body>
 
