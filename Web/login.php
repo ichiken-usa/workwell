@@ -1,26 +1,26 @@
 <?php
 
 // 関数まとめファイル
-require_once (dirname(__FILE__). '/functions.php');
+require_once(dirname(__FILE__) . '/functions.php');
 
-try{
+// 初期化
+$page_title = 'Login';
+
+try {
     // セッション確認
     session_start();
-    if(isset($_SESSION['USER'])){
+    if (isset($_SESSION['USER'])) {
         // ログイン済みならHOMEへ遷移
-        header('Location:/');
-        exit;
+        redirect('/');
     }
 
-    if($_SERVER['REQUEST_METHOD']=='POST'){
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // POST処理時
 
         // 不正呼び出しか確認
         check_token();
 
-        ////
-        // 1.入力値取得
-        ////
+        // 入力値取得
         $user_num = $_POST['user_num'];
         $password = $_POST['password'];
 
@@ -29,28 +29,26 @@ try{
         //echo $password;
         //exit;
 
-        ////
-        // 2.バリデーションチェック
-        ////
+        // バリデーション
         $err = array();
 
-        if(!$user_num){
-            $err['user_num']='Please input User ID';
-        }elseif(mb_strlen($user_num, 'utf-8') > 12){
-            $err['user_num']='User ID is too long';
+        if (!$user_num) {
+            $err['user_num'] = 'Please input User ID';
+        } elseif (mb_strlen($user_num, 'utf-8') > 12) {
+            $err['user_num'] = 'User ID is too long';
         }
 
-        if(!$password){
-            $err['password']='Please input Password';
+        if (!$password) {
+            $err['password'] = 'Please input Password';
         }
 
         // エラー文字が格納されているかテスト
         //var_dump($err);
 
         ////
-        // 3.データベース照合
+        // データベース照合
         ////
-        if(empty($err)){
+        if (empty($err)) {
         // エラー無し時
             $pdo = connect_db();
 
@@ -62,89 +60,52 @@ try{
             $stmt->execute();
             $user = $stmt->fetch();
 
-            if($user && password_verify($password, $user['password'])){
-                ////
-                // 4.ログイン処理
-                ////
+            ////
+            // ログイン処理
+            ////
+            if ($user && password_verify($password, $user['password'])) {
+            // 暗号化パスワード認証成功
 
                 // セッションに保存
                 $_SESSION['USER'] = $user;
 
                 // HOME画面へ遷移
-                header('Location:/');
-                exit;
+                redirect('/');
 
-            }else{
-                // 認証エラー
+            } else {
+            // 認証エラー
                 $err['password'] = 'Password authentication failed';
             }
-
         }
-
-
-
-    }else{
+    } else {
     // 画面初回アクセス時
-        $user_num="";
-        $password="";
+        $user_num = "";
+        $password = "";
 
         // これで発行したトークンを呼び出し元画面のhiddenに保存しておく
         set_token();
-
     }
-}catch(Exception $e){
-    header('Location: /error.php');
+} catch (Exception $e) {
+    redirect('/error.php');
 }
 ?>
 <!doctype html>
 <html lang="en">
 
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
-    <!-- Self-made CSS -->
-    <link href="/css/style.css" rel="stylesheet">
-
-    <title>Test | Login</title>
-</head>
+<!-- headタグ読み込み -->
+<?php include('template/tag_head.php') ?>
 
 <body class="text-center bg-light">
 
-    <h1 class="mb-4">Test</h1>
+    <!-- header読み込み -->
+    <?php include('template/header.php') ?>
 
-    <form class="border rounded bg-white form-login" method="post">
-    <input type="hidden" name="CSRF_TOKEN" value="<?= $_SESSION['CSRF_TOKEN'] ?>">
-        <h2 class="h3 my-3">Login</h2>
-        <div class="form-group p-3">
-
-            <!-- ログインID: バリデーションエラーが起きても入力値を保持するようにvalue設定 -->
-            <input type="text" class="form-control rounded-pill <?php if(isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= $user_num ?>" placeholder="User ID" required>
-            <div class="invalid-feedback"><?= $err['user_num'] ?></div>
-        </div>
-        <div class="form-group p-3">
-            <!-- パスワード -->
-            <input type="password" class="form-control rounded-pill <?php if(isset($err['password'])) echo 'is-invalid'; ?>" name="password" placeholder="Password">
-            <div class="invalid-feedback"><?= $err['password'] ?></div>
-        </div>
-
-        <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">Login</button>
-    </form>
-
-    <!-- Optional JavaScript; choose one of the two! -->
+    <!-- loginフォーム読み込み -->
+    <?php include('template/form_login.php') ?>
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
-    -->
 </body>
 
 </html>

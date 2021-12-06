@@ -5,6 +5,7 @@ require_once (dirname(__FILE__). '/../functions.php');
 
 try{
     // 初期化
+    $page_title = 'Result Admin';
     $err = array();
     $modal_break_ini = '01:00';
     $modal_view_flag = FALSE;
@@ -19,8 +20,7 @@ try{
 
     if(!isset($_SESSION['USER'])){
         // ログインされていない場合はログイン画面へ
-        header('Location: /admin/login.php');
-        exit;
+        redirect('/admin/login.php');
     }
 
     // 選択ユーザ情報をセッションから取得
@@ -55,7 +55,7 @@ try{
 
         // 開始時間確認
         if(!empty($modal_start_time)){
-            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_start_time)){
+            if(!check_time_format($modal_start_time)){
                 $modal_start_time = '';
                 $err['modal_start_time'] = 'Invalid time';
             }
@@ -63,7 +63,7 @@ try{
 
         // 終了時間確認
         if(!empty($modal_end_time)){
-            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_end_time)){
+            if(!check_time_format($modal_end_time)){
                 $modal_end_time = '';
                 $err['modal_end_time'] = 'Invalid time';
             }
@@ -71,7 +71,7 @@ try{
 
         // 休憩時間確認
         if(!empty($modal_break_time)){
-            if(!preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/',$modal_break_time)){
+            if(!check_time_format($modal_break_time)){
                 $modal_comment = '';
                 $err['modal_break_time'] = 'Invalid time';
             }
@@ -160,8 +160,6 @@ try{
     }
 
 
-
-
     ////
     // リストデータ取得
     ////
@@ -195,7 +193,7 @@ try{
     $work_list = $stmt->fetchAll(PDO::FETCH_UNIQUE);
 
 }catch(Exception $e){
-    header('Location: /error.php');
+    redirect('/error.php');
 }
 
 ?>
@@ -203,28 +201,13 @@ try{
 <!doctype html>
 <html lang="en">
 
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
-    <!-- Self-made CSS -->
-    <link href="/css/style.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link href='//use.fontawesome.com/releases/v5.11.0/css/all.css' rel='stylesheet' type='text/css' />
-
-    <title>Test | Home</title>
-</head>
+<!-- headタグ読み込み -->
+<?php include(dirname(__FILE__). '/../template/tag_head.php') ?>
 
 <body class="text-center bg-primary">
 
-    <h1 class="mb-4">Test Home</h1>
-
+    <!-- header読み込み -->
+    <?php include(dirname(__FILE__). '/../template/header_admin.php') ?>
 
     <!--リストのフォーム-->
     <form class="border rounded bg-white form-time-table" action="user-result.php">
@@ -233,228 +216,26 @@ try{
 
         <div class="btn-toolbar my-3">
             <!-- 月選択 -->
-            <select class="form-select rounded-pill m-2" name="m" onchange="submit(this.form)">
-                <?php for($i = 0; $i < 12; $i++): ?>
-                    <?php $dropdown_date = strtotime("-{$i}months"); ?>
-                    <option value="<?= date('Y-m', $dropdown_date) ?>"<?php if($selected_date == date('Y-m', $dropdown_date)) echo 'selected' ?>><?= date('Y/m', $dropdown_date) ?></option>
-                <?php endfor; ?>
-            </select>
+            <?php include(dirname(__FILE__). '/../template/dropdown_month.php') ?>
             <!-- Register Button -->
             <button type="button" class="btn btn-primary rounded-pill m-2" value="<?= date('Y-m-d') ?>" onclick="show_modal(this)">Register</button>
+            <!-- 戻るボタン -->
             <a href="/admin/user-list.php"><button type="button" class="btn btn-secondary rounded-pill m-2">Return</button></a>
         </div>
-        <!-- Button trigger modal -->
 
-        <!-- リスト表示テーブル -->
-        <table class="table table-hover table-bordered">
-            <thead>
-                <tr class="bg-light">
-                    <th scope="col">Date</th>
-                    <th scope="col">Start</th>
-                    <th scope="col">End</th>
-                    <th scope="col">Break</th>
-                    <th scope="col">Comment</th>
-                    <th scope="col">Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php for($i = 1; $i <= $day_count; $i++): ?>
-                    <?php
-                    // 表に入れるための変数初期化
-                        $start_time = '';
-                        $end_time = '';
-                        $break_time = '';
-                        $comment = '';
-                        
-                        // 対象日取得
-                        $list_date = date("Y-m-d", strtotime($selected_date.'-'.$i));
-                        
-                        if(isset($work_list[$list_date])){
-                            //対象日の配列データ取得
-                            $work = $work_list[$list_date];
-                        
-                            // 対象日の整形
-                            
+        <!-- time table -->
+        <?php include(dirname(__FILE__). '/../template/table_time_result.php') ?>
 
-                            // 時刻の表示フォーマット修正(秒を削除)
-
-                            // start_time
-                            if($work['start_time']){
-                                $start_time = date('H:i', strtotime($work['start_time']));
-                            }
-
-                            // end_time
-                            if($work['end_time']){
-                                $end_time = date('H:i', strtotime($work['end_time']));
-                            }
-
-                            // break_time
-                            if($work['break_time']){
-                                $break_time = date('H:i', strtotime($work['break_time']));
-                            }
-
-                            // commentは一定文字数以上を省略
-                            if($work['comment']){
-                                $comment = mb_strimwidth($work['comment'],0,40,'...');
-                            }
-                        }
-                    ?>
-                <tr id="tr_<?= $list_date; ?>">
-                    <!-- データ行 -->
-                    <th scope="row"><?= time_format_mdw($list_date); ?></th>
-                    <td><?= $start_time ?></td>
-                    <td><?= $end_time ?></td>
-                    <td><?= $break_time ?></td>
-                    <td><?= $comment ?></td>
-                    <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $list_date; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
-                </tr>
-                <?php endfor; ?>
-            </tbody>
-        </table>
     </form>
 
     <!-- Modal -->
-    <form method="POST">
-        <input type="hidden" id="modal_target_date" name='modal_target_date' value="<?= $target_date ?>"/>
-        <div class="modal fade" id="inputModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <p></p>
-                        <h5 class="modal-title" id="exampleModalLabel">Register</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- 入力日 -->
-                        <div class="alert alert-primary" role="alert">
-                            <span id="modal_date" name="modal_date"><?= time_format_mdw($target_date) ?></span>
-                        </div>
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-sm">
-                                    <!-- 開始時間 -->
-                                    <div class="input-group">
-                                        <input type="text" class="form-control <?php if(isset($err['modal_start_time'])) echo 'is-invalid'; ?>" id="modal_start_time" name="modal_start_time" value="<?= time_format_hm($modal_start_time) ?>" placeholder="Start">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-primary" style="width:50px" id="start_btn">Set</button>
-                                        </div>
-                                        <div class="invalid-feedback"><?= $err['modal_start_time'] ?></div>
-                                    </div>
-                                </div>
-                                <div class="col-sm">
-                                    <!-- 終了時間 -->
-                                    <div class="input-group">
-                                        <input type="text" class="form-control <?php if(isset($err['modal_end_time'])) echo 'is-invalid'; ?>" id="modal_end_time" name="modal_end_time" value="<?= time_format_hm($modal_end_time) ?>" placeholder="End">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-primary" style="width:50px" id="end_btn">Set</button>
-                                        </div>
-                                        <div class="invalid-feedback"><?= $err['modal_end_time'] ?></div>
-                                    </div>
-                                </div>
-                                <!-- 休憩時間 -->
-                                <div class="col-sm">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control <?php if(isset($err['modal_break_time'])) echo 'is-invalid'; ?>" id="modal_break_time" name="modal_break_time" value="<?= time_format_hm($modal_break_time) ?>"  placeholder="Break">
-                                    </div>
-                                    <div class="invalid-feedback"><?= $err['modal_break_time'] ?></div>
-                                </div>
-                            </div>
-                            <!-- コメント -->
-                            <div class="form-group pt-3">
-                                <textarea class="form-control <?php if(isset($err['modal_comment'])) echo 'is-invalid'; ?>" name="modal_comment" id="modal_comment" rows="5" placeholder="Comment"><?= $modal_comment ?></textarea>
-                                <div class="invalid-feedback"><?= $err['modal_comment'] ?></div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary rounded-pill">Submit</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </form>
-
-    <!-- Optional JavaScript; choose one of the two! -->
+    <?php include(dirname(__FILE__). '/../template/form_modal_work_register.php') ?>
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
-    -->
+    <?php include(dirname(__FILE__). '/../template/script_modal.php') ?>
 
-    <script>
-        // モーダル自動表示
-        <?php if($modal_view_flag): ?>
-        var inputModal = new bootstrap.Modal(document.getElementById('inputModal'))
-        inputModal.toggle()
-        <?php endif ?>
-
-
-        // モーダル立ち上げボタン
-        function show_modal(obj){
-            var inputModal = new bootstrap.Modal(document.getElementById('inputModal'))
-            inputModal.toggle()
-            
-            // タグのオブジェクトからvalue取得
-            var target_date = obj.value
-            
-
-            //対象日の表データを取得するためにtrタグに日付idを付与している。trの子要素を取得して次の要素の値取得
-            var th = document.getElementById('tr_'+target_date).firstElementChild
-            var day = th.innerText
-            var start_time = th.nextElementSibling.innerText
-            var end_time = th.nextElementSibling.nextElementSibling.innerText
-            var break_time = th.nextElementSibling.nextElementSibling.nextElementSibling.innerText
-            var comment = th.nextElementSibling.nextElementSibling.nextElementSibling.nextElementSibling.innerText
-            console.log(target_date)
-
-            if(break_time == ''){
-                break_time = '<?= $modal_break_ini; ?>'
-            }
-
-            // 取得したデータをモーダルへ入力
-            document.getElementById("modal_date").innerText = day
-            document.getElementById("modal_start_time").value = start_time
-            document.getElementById("modal_end_time").value = end_time
-            document.getElementById("modal_break_time").value = break_time
-            document.getElementById("modal_comment").innerText = comment
-            document.getElementById("modal_target_date").value = target_date
-
-            // エラー表示をリセット
-            document.getElementById("modal_date").classList.remove('is-invalid')
-            document.getElementById("modal_start_time").classList.remove('is-invalid')
-            document.getElementById("modal_end_time").classList.remove('is-invalid')
-            document.getElementById("modal_break_time").classList.remove('is-invalid')
-            document.getElementById("modal_comment").classList.remove('is-invalid')
-
-
-        }
-
-
-        // startのsetボタン
-        document.getElementById("start_btn").onclick = function() {
-            const now = new Date()
-            const hour = now.getHours().toString().padStart(2,'0')
-            const minute = now.getMinutes().toString().padStart(2,'0')
-            document.getElementById("modal_start_time").value = hour+':'+minute
-        }
-
-        // endのsetボタン
-        document.getElementById("end_btn").onclick = function() {
-            const now = new Date()
-            const hour = now.getHours().toString().padStart(2,'0')
-            const minute = now.getMinutes().toString().padStart(2,'0')
-            document.getElementById("modal_end_time").value = hour+':'+minute
-        }
-
-    </script>
-
- 
 </body>
 
 </html>

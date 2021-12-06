@@ -1,5 +1,6 @@
 <?php
 
+// DB接続
 function connect_db(){
 
     ////
@@ -24,6 +25,7 @@ function connect_db(){
 
 }
 
+// Datetimeを日付と曜日にフォーマット
 function time_format_dw($date){
 
     $format_date = NULL;
@@ -43,6 +45,7 @@ function time_format_dw($date){
     return $format_date;
 }
 
+// Datetimeを月日曜にフォーマット
 function time_format_mdw($date){
 
     $format_date = NULL;
@@ -62,6 +65,7 @@ function time_format_mdw($date){
     return $format_date;
 }
 
+// 時間をHH:mmにフォーマット
 function time_format_hm($time){
 
     $format_time = NULL;
@@ -88,8 +92,22 @@ function check_token(){
     //一致しなければ不正呼び出しと判断
     if(empty($_SESSION["CSRF_TOKEN"])||($_SESSION['CSRF_TOKEN']!=$_POST['CSRF_TOKEN'])){
         unset($pdo);
-        header('Location: /error.php');
-        exit;
+        redirect('/error.php');
     }
+}
+
+// 時刻フォーマット確認
+function check_time_format($time){
+    if (preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/', $time)) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
+// 指定のPHPへリダイレクト
+function redirect($path){
+    header('Location: '.$path);
+    exit;
 }
 ?>
