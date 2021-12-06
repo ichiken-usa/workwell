@@ -219,7 +219,8 @@ try{
             <?php include(dirname(__FILE__). '/../template/dropdown_month.php') ?>
             <!-- Register Button -->
             <button type="button" class="btn btn-primary rounded-pill m-2" value="<?= date('Y-m-d') ?>" onclick="show_modal(this)">Register</button>
-            <!-- 戻るボタン -->
+            
+            <!-- Admin画面用の戻るボタン -->
             <a href="/admin/user-list.php"><button type="button" class="btn btn-secondary rounded-pill m-2">Return</button></a>
         </div>
 
@@ -234,6 +235,7 @@ try{
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
+    <!-- 日報登録モーダル用のスクリプト読み込み -->
     <?php include(dirname(__FILE__). '/../template/script_modal.php') ?>
 
 </body>
