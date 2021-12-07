@@ -27,3 +27,8 @@
 - 登録データの月毎表示
 - 登録データの編集
 - XSS対策エスケープ処理
+
+### 簡易設定手順
+- DBのテーブルとカラムは/Doc/db_memo.txt参照
+- parameters_sample.phpをparameters.phpに変更し、DB接続設定を変更
+- ApacheのWeb公開フォルダを"(パス)/workwell/Web/"に設定

@@ -4,19 +4,19 @@ workwell
 
 # table
 
-M_user
+m_user
 id  primary AI
-user_num    varchar
-name        varchar
-password    varchar
-type    tinyint
+user_num    varchar     ユーザーID
+name        varchar     ユーザーの名前
+password    varchar     長めにしないと暗号化で上限にひっかかる
+type    tinyint         Nullがユーザー。1がAdmin。
 
 
-D_work
+d_work
 id  primary AI
-user_id int
-date    date
-start_time  time
-end_time    time
-break_time  time
-comment     text
+user_id int             紐付け用
+date    date            日付
+start_time  time        開始時間
+end_time    time        終了時間
+break_time  time        休憩時間（デフォルトで１時間を設定）
+comment     text        業務内容
