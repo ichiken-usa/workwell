@@ -15,5 +15,18 @@
         <div class="invalid-feedback"><?= $err['password'] ?></div>
     </div>
 
-    <button type="submit" class="btn btn-primary text-white rounded-pill my-4">Login</button>
+
+    <div class="row mt-4">
+            <div class="col"></div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary text-white rounded-pill my-3">Login</button>
+            </div>
+            <div class="col">
+                <!-- Admin画面用の戻るボタン -->
+                <a href="/signup.php"><button type="button" class="btn col-sm btn-success rounded-pill my-3">Sign up</button></a>
+            </div>
+            <div class="col"></div>
+        </div>
+    </form>
+
 </form>
