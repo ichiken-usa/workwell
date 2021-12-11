@@ -6,6 +6,7 @@
                 <th scope="col">User ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Type</th>
+                <th scope="col">Edit</th>
             </tr>
         </thead>
         <tbody>
@@ -14,7 +15,8 @@
                     <th scope="row"><?= $user['user_num'] ?></th>
                     <!-- 選択ユーザをGETパラメータで渡す -->
                     <td><a href="/admin/user-result.php?id=<?= $user['id'] ?>"><?= $user['name'] ?></td>
-                    <td><?php if ($user['type'] == 1) echo 'Administrator' ?></td>
+                    <td><?= $user['type'] ?></td>
+                    <td><button type="button" class="btn h-auto py-0" style="width:40px" value="<?= $user['id']; ?>" onclick="show_modal(this)"><i class="far fa-edit"></i></button></td>
                 </tr>
             <?php endforeach ?>
         </tbody>
