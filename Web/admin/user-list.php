@@ -5,6 +5,7 @@ require_once (dirname(__FILE__). '/../functions.php');
 // 初期化
 $page_title = 'User list';
 
+
 try{
     // セッション確認
     session_start();

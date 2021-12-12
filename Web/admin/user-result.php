@@ -14,8 +14,8 @@ try{
     // セッション確認
     session_start();
 
-    if(!isset($_SESSION['USER'])){
-        // ログインされていない場合はログイン画面へ
+    // ログインされていない or Adminフラグ無しでリダイレクト
+    if(!isset($_SESSION['USER']) || $_SESSION['USER']['type'] != 1){
         redirect('/admin/login.php');
     }
 
