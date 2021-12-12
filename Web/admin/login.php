@@ -105,7 +105,7 @@ try{
 <body class="text-center bg-primary">
 
     <!-- header読み込み -->
-    <?php include(dirname(__FILE__).'/../template/header.php') ?>
+    <?php include(dirname(__FILE__).'/../template/header_admin.php') ?>
 
     <!-- loginフォーム読み込み -->
     <?php include(dirname(__FILE__).'/../template/form_login.php') ?>
