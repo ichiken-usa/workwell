@@ -1,4 +1,4 @@
-<form class="border rounded bg-white form-login" method="post">
+<form class="border rounded bg-white form-login text-center my-5" method="post">
     <!-- トークン用hiddenタグ -->
     <input type="hidden" name="CSRF_TOKEN" value="<?= $_SESSION['CSRF_TOKEN'] ?>">
 

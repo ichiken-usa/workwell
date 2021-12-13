@@ -102,10 +102,10 @@ try {
 <!-- headタグ読み込み -->
 <?php include('template/tag_head.php') ?>
 
-<body class="text-center bg-light">
+<body class="bg-light" style="padding-top:4.5rem;">
 
-    <!-- header読み込み -->
-    <?php include('template/header.php') ?>
+    <?php include('template/navbar.php') ?>
+
 
     <!-- loginフォーム読み込み -->
     <?php include('template/form_login.php') ?>

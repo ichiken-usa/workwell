@@ -198,13 +198,13 @@ try {
 <!-- headタグ -->
 <?php include('template/tag_head.php') ?>
 
-<body class="text-center bg-light">
+<body class="bg-light" style="padding-top:4.5rem;">
 
-    <!-- Header -->
-    <?php include('template/header.php') ?>
+    <!-- Navbar -->
+    <?php include('template/navbar.php') ?>
 
     <!-- 日報表示リスト読み込み -->
-    <form class="border rounded bg-white form-time-table" action="index.php">
+    <form class="border rounded bg-white form-time-table my-3 text-center " action="index.php">
         <h2 class="h3 my-3">List</h2>
 
         <div class="btn-toolbar my-3">
