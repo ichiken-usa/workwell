@@ -125,18 +125,21 @@ try {
         <div class="my-3"><?= escape($signup_message) ?></div>
 
 
-        <div class="form-group p-3">
+        <div class="form-group p-2">
             <!-- ログインID: エラーが起きても入力値を保持するようにvalue設定 -->
+            <label class="form-label">User ID</label>
             <input type="text" class="form-control rounded-pill <?php if (isset($err['user_num'])) echo 'is-invalid'; ?>" name="user_num" value="<?= escape($user_num) ?>" placeholder="User ID (4 - 12)" required>
             <div class="invalid-feedback"><?= $err['user_num'] ?></div>
         </div>
-        <div class="form-group p-3">
+        <div class="form-group p-2">
             <!-- User name -->
+            <label class="form-label">User name</label>
             <input type="text" class="form-control rounded-pill <?php if (isset($err['name'])) echo 'is-invalid'; ?>" name="name" value="<?= escape($name) ?>" placeholder="Name (2 - 32)" required>
             <div class="invalid-feedback"><?= $err['name'] ?></div>
         </div>
-        <div class="form-group p-3">
+        <div class="form-group p-2">
             <!-- パスワード -->
+            <label class="form-label">Password</label>
             <input type="password" class="form-control rounded-pill <?php if (isset($err['password'])) echo 'is-invalid'; ?>" name="password" placeholder="Password (4 - 24)" required>
             <div class="invalid-feedback"><?= $err['password'] ?></div>
         </div>
