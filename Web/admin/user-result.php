@@ -50,27 +50,36 @@ try{
         // var_dump($modal_comment);
 
         // 開始時間確認
-        if(!empty($modal_start_time)){
-            if(!check_time_format($modal_start_time)){
-                $modal_start_time = '';
+        if (!empty($modal_start_time)) {
+            if (!check_time_format($modal_start_time)) {
+                $modal_start_time = null;
                 $err['modal_start_time'] = 'Invalid time';
             }
+        }else{
+            //空なら
+            $modal_start_time = null;
         }
 
         // 終了時間確認
-        if(!empty($modal_end_time)){
-            if(!check_time_format($modal_end_time)){
-                $modal_end_time = '';
+        if (!empty($modal_end_time)) {
+            if (!check_time_format($modal_end_time)) {
+                $modal_end_time = null;
                 $err['modal_end_time'] = 'Invalid time';
             }
+        }else{
+            // 空なら
+            $modal_end_time = null;
         }
 
         // 休憩時間確認
-        if(!empty($modal_break_time)){
-            if(!check_time_format($modal_break_time)){
-                $modal_comment = '';
+        if (!empty($modal_break_time)) {
+            if (!check_time_format($modal_break_time)) {
+                $modal_comment = null;
                 $err['modal_break_time'] = 'Invalid time';
             }
+        }else{
+            // 空なら
+            $modal_break_time = null;
         }
 
         // コメント文字数チェック
