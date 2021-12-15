@@ -147,11 +147,12 @@ try {
 <!-- headタグ読み込み -->
 <?php include(dirname(__FILE__). '/../template/tag_head.php') ?>
 
-<body class="text-center bg-primary">
-    <!-- header読み込み -->
-    <?php include(dirname(__FILE__). '/../template/header_admin.php') ?>
+<body class="bg-primary" style="padding-top:4.5rem;">
+
+    <!-- Navbar -->
+    <?php include(dirname(__FILE__). '/../template/navbar.php') ?>
     
-    <form class="border rounded bg-white form-login" method="post">
+    <form class="border rounded bg-white form-login text-center" method="post">
 
         <h2 class="h3 my-3">Edit</h2>
 
@@ -190,6 +191,10 @@ try {
             <div class="col"></div>
         </div>
     </form>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
 
 </body>
 

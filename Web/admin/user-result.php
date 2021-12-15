@@ -209,13 +209,13 @@ try{
 <!-- headタグ読み込み -->
 <?php include(dirname(__FILE__). '/../template/tag_head.php') ?>
 
-<body class="text-center bg-primary">
+<body class="bg-primary" style="padding-top:4.5rem;">
 
-    <!-- header読み込み -->
-    <?php include(dirname(__FILE__). '/../template/header_admin.php') ?>
+    <!-- Navbar -->
+    <?php include(dirname(__FILE__). '/../template/navbar.php') ?>
 
     <!--リストのフォーム-->
-    <form class="border rounded bg-white form-time-table" action="user-result.php">
+    <form class="border rounded bg-white form-time-table text-center" action="user-result.php">
     <input type="hidden" name="id" value="<?= $user_id ?>">
         <h2 class="h3 my-3">List</h2>
 

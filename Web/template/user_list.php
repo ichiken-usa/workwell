@@ -1,4 +1,4 @@
-<form class="border rounded bg-white form-user-table">
+<form class="border rounded bg-white form-user-table text-center">
     <h2 class="h3 my-3">User List</h2>
     <table class="table table-hover table-bordered">
         <thead>

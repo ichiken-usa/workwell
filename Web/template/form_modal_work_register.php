@@ -11,7 +11,7 @@
                 </div>
                 <div class="modal-body">
                     <!-- 入力日 -->
-                    <div class="alert alert-primary" role="alert">
+                    <div class="alert alert-primary text-center" role="alert">
                         <span id="modal_date" name="modal_date"><?= time_format_mdw($target_date) ?></span>
                     </div>
                     <div class="container">
