@@ -7,9 +7,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="/login.php">Home</a>
-        <a class="nav-link" href="#">リンク1</a>
-        <a class="nav-link" href="/logout.php">Logout</a>
+        <a class="nav-link active mx-3 my-1" aria-current="page" href="/login.php">Home</a>
+        <a class="nav-link mx-3 my-1" href="/user-edit.php"><i class="fas fa-user-cog"></i> Setting</a>
+        <a class="nav-link mx-3 my-1" href="/logout.php">Logout</a>
       </div><!-- /.navbar-nav -->
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
