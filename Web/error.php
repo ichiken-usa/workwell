@@ -4,9 +4,12 @@
 <!-- headタグ -->
 <?php include('template/tag_head.php') ?>
 
-<body class="text-center bg-primary">
+<body class="bg-primary" style="padding-top:4.5rem;">
 
-    <div class="border rounded bg-white form-login" method="post">
+    <!-- Navbar -->
+    <?php include('template/navbar.php') ?>
+
+    <div class="border rounded bg-white form-login text-center my-3" >
         <h1 class="my-4">ERROR</h1>
         <p>システムエラーが発生しました。</p>
         <p>お手数ですがシステム管理者にお問い合わせください。</p>
