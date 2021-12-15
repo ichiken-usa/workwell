@@ -112,10 +112,12 @@ try {
 <!-- headタグ読み込み -->
 <?php include('template/tag_head.php') ?>
 
-<body class="text-center bg-light">
-    <?php include('template/header.php') ?>
+<body class="bg-light" style="padding-top:4.5rem;">
 
-    <form class="border rounded bg-white form-login" method="post">
+    <!-- Navbar -->
+    <?php include('template/navbar.php') ?>
+
+    <form class="border rounded bg-white form-login my-5 text-center" method="post">
         <!-- トークン用hiddenタグ -->
         <input type="hidden" name="CSRF_TOKEN" value="<?= $_SESSION['CSRF_TOKEN'] ?>">
 
@@ -156,6 +158,9 @@ try {
             <div class="col"></div>
         </div>
     </form>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
 </body>
 

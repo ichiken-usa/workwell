@@ -32,10 +32,10 @@ try{
 <!-- headタグ読み込み -->
 <?php include(dirname(__FILE__). '/../template/tag_head.php') ?>
 
-<body class="text-center bg-primary">
+<body class="bg-primary" style="padding-top:4.5rem;">
 
-    <!-- header読み込み -->
-    <?php include(dirname(__FILE__).'/../template/header_admin.php') ?>
+    <!-- Navbar -->
+    <?php include(dirname(__FILE__). '/../template/navbar.php') ?>
 
     <!-- ユーザーリスト -->
     <?php include(dirname(__FILE__).'/../template/user_list.php') ?>

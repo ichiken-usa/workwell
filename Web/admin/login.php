@@ -102,10 +102,10 @@ try{
 <!-- headタグ読み込み -->
 <?php include(dirname(__FILE__). '/../template/tag_head.php') ?>
 
-<body class="text-center bg-primary">
+<body class="text-center bg-primary" style="padding-top:4.5rem;">
 
-    <!-- header読み込み -->
-    <?php include(dirname(__FILE__).'/../template/header_admin.php') ?>
+    <!-- Navbar -->
+    <?php include(dirname(__FILE__). '/../template/navbar.php') ?>
 
     <!-- loginフォーム読み込み -->
     <?php include(dirname(__FILE__).'/../template/form_login.php') ?>
