@@ -12,8 +12,9 @@
 |Apache|2.4.51|
 |MySQL|8.0.27|
   
-M1 MontereyにApache+PHPの開発環境を構築する方法はこちらで解説  
+M1 MontereyにApache+PHPの開発環境を構築する方法: 
 https://ichiken-usa.blogspot.com/2021/12/m1-apache-php.html  
+  
 PHPはハッシュ使用のため5.5.0以上が必須
 
 ## 簡易設定手順
