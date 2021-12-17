@@ -110,4 +110,24 @@ function redirect($path){
     header('Location: '.$path);
     exit;
 }
+
+// 文字列長さチェック
+function check_length($str, $min, $max, $comment){
+
+    // nullじゃないとemptyチェックにひっかかるので注意
+    $error_message = null;
+
+    if (!$str) {
+        $error_message = 'Please input '.$comment;
+    // ユーザーID長すぎ
+    } elseif (mb_strlen($str, 'utf-8') > $max) {
+        $error_message = $comment.' is too long';
+        // ユーザーID短すぎ
+    } elseif (mb_strlen($str, 'utf-8') < $min) {
+        $error_message = $comment.' is too short';
+    }
+
+    return $error_message;
+}
+
 ?>

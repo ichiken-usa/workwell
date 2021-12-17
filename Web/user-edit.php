@@ -40,15 +40,17 @@ try {
         $err = array();
 
         // ユーザーID入力なし（HTML側でも制限してるが一応）
-        if (!$user_num) {
-            $err['user_num'] = 'Please input User ID';
-            // ユーザーID長すぎ
-        } elseif (mb_strlen($user_num, 'utf-8') > 12) {
-            $err['user_num'] = 'User ID is too long';
-            // ユーザーID短すぎ
-        } elseif (mb_strlen($user_num, 'utf-8') < 4) {
-            $err['user_num'] = 'User ID is too short';
-        }
+        // if (!$user_num) {
+        //     $err['user_num'] = 'Please input User ID';
+        //     // ユーザーID長すぎ
+        // } elseif (mb_strlen($user_num, 'utf-8') > 12) {
+        //     $err['user_num'] = 'User ID is too long';
+        //     // ユーザーID短すぎ
+        // } elseif (mb_strlen($user_num, 'utf-8') < 4) {
+        //     $err['user_num'] = 'User ID is too short';
+        // }
+
+        $err['user_num'] = check_length($user_num, 4, 12, 'User ID');
 
         // 名前入力確認
         if (!$name) {
