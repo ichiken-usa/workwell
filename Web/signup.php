@@ -25,7 +25,7 @@ try {
         // バリデーション
         $err = array();
 
-        // ユーザ名入力チェック
+        // ユーザID入力チェック
         $error_message = null;
         $error_message = check_length($user_num, 4, 12, 'User ID');
         if (!empty($error_message)){
