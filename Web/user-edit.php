@@ -50,17 +50,18 @@ try {
         //     $err['user_num'] = 'User ID is too short';
         // }
 
-        $err['user_num'] = check_length($user_num, 4, 12, 'User ID');
+        // ユーザ名入力チェック
+        $error_message = null;
+        $error_message = check_length($user_num, 4, 12, 'User ID');
+        if (!empty($error_message)){
+            $err['user_num'] = $error_message;
+        }
 
-        // 名前入力確認
-        if (!$name) {
-            $err['name'] = 'Please input Name';
-            // 名前長すぎ
-        } elseif (mb_strlen($name, 'utf-8') > 32) {
-            $err['name'] = 'Name is too long';
-            // 名前短すぎ
-        } elseif (mb_strlen($name, 'utf-8') < 2) {
-            $err['name'] = 'Name is too short';
+        // 名前入力チェック
+        $error_message = null;
+        $error_message = check_length($name, 2, 32, 'User Name');
+        if (!empty($error_message)){
+            $err['name'] = $error_message;
         }
 
 
