@@ -23,6 +23,9 @@ try {
         redirect('/login.php');
     }
 
+    // 自動ログアウト
+    check_session_expiration();
+
     // ログインユーザ情報をセッションから取得
     $session_user = $_SESSION['USER'];
 

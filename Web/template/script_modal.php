@@ -7,6 +7,7 @@
 
     // モーダル立ち上げボタン
     function show_modal(obj) {
+
         var inputModal = new bootstrap.Modal(document.getElementById('inputModal'))
         inputModal.toggle()
 

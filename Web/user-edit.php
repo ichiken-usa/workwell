@@ -18,6 +18,8 @@ try {
         redirect('/login.php');
     }
 
+    check_session_expiration();
+
     // 選択ユーザ情報をセッションから取得
     //$id = $_REQUEST['id'];
 
@@ -39,18 +41,7 @@ try {
         // バリデーション
         $err = array();
 
-        // ユーザーID入力なし（HTML側でも制限してるが一応）
-        // if (!$user_num) {
-        //     $err['user_num'] = 'Please input User ID';
-        //     // ユーザーID長すぎ
-        // } elseif (mb_strlen($user_num, 'utf-8') > 12) {
-        //     $err['user_num'] = 'User ID is too long';
-        //     // ユーザーID短すぎ
-        // } elseif (mb_strlen($user_num, 'utf-8') < 4) {
-        //     $err['user_num'] = 'User ID is too short';
-        // }
-
-        // ユーザ名入力チェック
+        // ユーザID入力チェック
         $error_message = null;
         $error_message = check_length($user_num, 4, 12, 'User ID');
         if (!empty($error_message)){
