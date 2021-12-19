@@ -73,6 +73,7 @@ try{
 
                 // セッションに保存
                 $_SESSION['USER'] = $user;
+                $_SESSION['timestamp'] = time();
 
                 // HOME画面へ遷移
                 redirect('/admin/user-list.php');

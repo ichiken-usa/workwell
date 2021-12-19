@@ -50,7 +50,6 @@ try {
             $err['password'] = $error_message;
         }
 
-
         // エラー無しならDBからユーザ情報取得
         if (empty($err)) {
 

@@ -18,6 +18,9 @@ try {
         redirect('/admin/login.php');
     }
 
+    // 自動ログアウト
+    check_session_expiration();
+
     // 選択ユーザ情報をセッションから取得
     $id = $_REQUEST['id'];
 

@@ -14,6 +14,9 @@ try{
         redirect('/admin/login.php');
     }
 
+    // 自動ログアウト
+    check_session_expiration();
+
     // DBから全ユーザリスト取得
     $pdo = connect_db();
 
