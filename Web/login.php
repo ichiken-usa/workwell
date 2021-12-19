@@ -36,25 +36,20 @@ try {
         // バリデーション
         $err = array();
 
-        // ユーザーID入力なし（HTML側でも制限してるが一応）
-        if(!$user_num){
-            $err['user_num']='Please input User ID';
-        // ユーザーID長すぎ
-        }elseif(mb_strlen($user_num, 'utf-8') > 12){
-            $err['user_num']='User ID is too long';
+        // ユーザ名入力チェック
+        $error_message = null;
+        $error_message = check_length($user_num, 4, 12, 'User ID');
+        if (!empty($error_message)){
+            $err['user_num'] = $error_message;
         }
 
         // パスワード入力チェック
-        if (!$password) {
-            $err['password'] = 'Please input Password';
+        $error_message = null;
+        $error_message = check_length($password, 4, 24, 'Password');
+        if (!empty($error_message)){
+            $err['password'] = $error_message;
         }
 
-        // エラー文字が格納されているかテスト
-        //var_dump($err);
-
-        ////
-        // データベース照合
-        ////
 
         // エラー無しならDBからユーザ情報取得
         if (empty($err)) {
