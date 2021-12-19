@@ -130,4 +130,15 @@ function check_length($str, $min, $max, $comment){
     return $error_message;
 }
 
+function check_session_expiration(){
+
+    if(time() - $_SESSION['timestamp'] > 600) { //subtract new timestamp from the old one
+        echo'<script language="javascript" type="text/javascript">
+            alert("Your session has expired.");
+            window.location = "/logout.php";</script>';
+    } else {
+        $_SESSION['timestamp'] = time(); //set new timestamp
+    }
+}
+
 ?>

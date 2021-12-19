@@ -36,7 +36,7 @@ try {
         // バリデーション
         $err = array();
 
-        // ユーザ名入力チェック
+        // ユーザID入力チェック
         $error_message = null;
         $error_message = check_length($user_num, 4, 12, 'User ID');
         if (!empty($error_message)){
@@ -67,8 +67,9 @@ try {
             // 暗号化パスワード認証成功時
             if ($user && password_verify($password, $user['password'])) {
 
-                // セッションに保存
+                // セッションにユーザ情報と時間を保存
                 $_SESSION['USER'] = $user;
+                $_SESSION['timestamp'] = time(); 
 
                 // HOME画面へ遷移
                 redirect('/');
